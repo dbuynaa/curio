@@ -1,12 +1,8 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 
-import { protectedProcedure, publicProcedure } from "../trpc";
+import { publicProcedure } from "../trpc";
 
 export const authRouter = {
-  getSession: publicProcedure.query(({ ctx }) => {
-    return ctx.session;
-  }),
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can see this secret message!";
-  }),
+  // Expose the better-auth session to the client (logged-in or null)
+  getSession: publicProcedure.query(({ ctx }) => ctx.session),
 } satisfies TRPCRouterRecord;

@@ -31,7 +31,8 @@
     "@acme/tsconfig": "workspace:*",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "^4.1.9"
   },
   "prettier": "@acme/prettier-config"
 }

@@ -13,6 +13,8 @@ import { z, ZodError } from "zod/v4";
 import type { Auth } from "@acme/auth";
 import { db } from "@acme/db/client";
 
+import { requireCurioUser } from "./lib/profile-user";
+
 /**
  * 1. CONTEXT
  *
@@ -126,3 +128,14 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+/**
+ * Authenticated + onboarded — guarantees a Curio `users` profile row exists.
+ * Use for any mutation that references profile-scoped FKs (collections, likes, etc.).
+ */
+export const protectedProfileProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const profile = await requireCurioUser(ctx);
+    return next({ ctx: { ...ctx, profile } });
+  },
+);
