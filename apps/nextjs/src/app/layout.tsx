@@ -16,18 +16,20 @@ export const metadata: Metadata = {
       ? "https://turbo.t3.gg"
       : "http://localhost:3000",
   ),
-  title: "Create T3 Turbo",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: {
+    default: "Curio — Curate the things you love, with credit",
+    template: "%s",
+  },
+  description:
+    "A social platform for building public collections around your taste — art, music, films, writing — with every item linked back to its source.",
   openGraph: {
-    title: "Create T3 Turbo",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://create-t3-turbo.vercel.app",
-    siteName: "Create T3 Turbo",
+    title: "Curio — Curate the things you love, with credit",
+    description:
+      "A social platform for building public collections around your taste — art, music, films, writing — with every item linked back to its source.",
+    type: "website",
   },
   twitter: {
-    card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    card: "summary",
   },
 };
 

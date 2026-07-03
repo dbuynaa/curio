@@ -1,5 +1,5 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "./node_modules/turbo/schema.json",
   "ui": "tui",
   "tasks": {
     "topo": {
@@ -51,8 +51,6 @@
   "globalEnv": [
     "POSTGRES_URL",
     "POSTGRES_URL_NON_POOLING",
-    "AUTH_DISCORD_ID",
-    "AUTH_DISCORD_SECRET",
     "AUTH_REDIRECT_PROXY_URL",
     "AUTH_SECRET",
     "PORT"

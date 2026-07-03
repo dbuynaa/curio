@@ -1,16 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, eq, sql } from "@acme/db";
 import type { db as dbClient } from "@acme/db/client";
-import {
-  collections,
-  creators,
-  fastAddUrlSchema,
-  insertItemSchema,
-  items,
-  updateItemSchema,
-} from "@acme/db/schema";
+import { and, eq, sql } from "@acme/db";
+import { collections, creators, items } from "@acme/db/schema";
 
 import {
   normalizeCreatorName,
@@ -76,7 +69,9 @@ async function nextPosition(db: Database, collectionId: string) {
   return (row?.max ?? -1) + 1;
 }
 
-async function validateSourceUrlIfPresent(sourceUrl: string | null | undefined) {
+async function validateSourceUrlIfPresent(
+  sourceUrl: string | null | undefined,
+) {
   if (!sourceUrl?.trim()) return;
   const result = await validateResolvableUrl(sourceUrl);
   if (!result.ok) {
@@ -120,19 +115,11 @@ export const itemRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { collectionId, sourceUrl, creatorName, creatorUrl, ...rest } =
         input;
-      await assertOwnsParentCollection(
-        ctx.db,
-        collectionId,
-        ctx.profile.id,
-      );
+      await assertOwnsParentCollection(ctx.db, collectionId, ctx.profile.id);
 
       await validateSourceUrlIfPresent(sourceUrl);
 
-      const creatorId = await resolveCreatorId(
-        ctx.db,
-        creatorName,
-        creatorUrl,
-      );
+      const creatorId = await resolveCreatorId(ctx.db, creatorName, creatorUrl);
       const position = await nextPosition(ctx.db, collectionId);
 
       const [item] = await ctx.db
