@@ -15,7 +15,7 @@ import {
   items,
   saves,
   users,
-} from "./tables";
+} from "./schema";
 
 // ---------------------------------------------------------------------------
 // Users — FR-1.4 (username format), FR-2.2 (bio length already enforced by
@@ -39,7 +39,6 @@ export const insertUserSchema = createInsertSchema(users, {
 }).omit({
   id: true,
   authUserId: true,
-  isAdultConfirmed: true,
   followerCount: true,
   followingCount: true,
   collectionCount: true,

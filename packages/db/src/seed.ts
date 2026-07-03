@@ -1,18 +1,11 @@
 import { count, inArray, like } from "drizzle-orm";
 
+
+
 import { db } from "./client";
 import { ensureCurioSchema } from "./ensure-curio-schema";
-import {
-  collectionLikes,
-  collections,
-  comments,
-  creators,
-  follows,
-  itemLikes,
-  items,
-  saves,
-  users,
-} from "./tables";
+import { collectionLikes, collections, comments, creators, follows, itemLikes, items, users, saves } from "./schema";
+
 
 const SEED_AUTH_PREFIX = "seed:";
 
@@ -98,6 +91,59 @@ const seedItemIds = {
   matureItem: "40000000-0000-4000-8000-000000000008",
 } as const;
 
+
+const userProfiles = [
+  {
+    id: seedUserIds.alice,
+    authUserId: `${SEED_AUTH_PREFIX}alice`,
+    username: "alice_curates",
+    displayName: "Alice Chen",
+    bio: "Digital art curator. Collecting color, light, and character design.",
+    avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=alice",
+    searchIndexable: true,
+    followerCount: 1,
+    followingCount: 0,
+    collectionCount: 2,
+  },
+  {
+    id: seedUserIds.bob,
+    authUserId: `${SEED_AUTH_PREFIX}bob`,
+    username: "bob_beats",
+    displayName: "Bob Rivera",
+    bio: "Ambient and focus music for deep work sessions.",
+    avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=bob",
+    searchIndexable: true,
+    followerCount: 1,
+    followingCount: 0,
+    collectionCount: 1,
+  },
+  {
+    id: seedUserIds.carol,
+    authUserId: `${SEED_AUTH_PREFIX}carol`,
+    username: "carol_reads",
+    displayName: "Carol Nguyen",
+    bio: "Essays, long reads, and thoughtful links.",
+    avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=carol",
+    searchIndexable: true,
+    followerCount: 0,
+    followingCount: 2,
+    collectionCount: 1,
+  },
+  {
+    id: seedUserIds.dev,
+    authUserId: `${SEED_AUTH_PREFIX}dev`,
+    username: "dev_tester",
+    displayName: "Dev Tester",
+    bio: "Internal test account for mature content and unlisted collections.",
+    avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=dev",
+    isAdultConfirmed: true,
+    searchIndexable: false,
+    followerCount: 0,
+    followingCount: 0,
+    collectionCount: 1,
+  },
+];
+
 const sharedYoutubeUrl =
   "https://www.youtube.com/watch?v=dQw4w9WgXcQ&utm_source=seed";
 const sharedYoutubeNormalized = normalizeSourceUrl(sharedYoutubeUrl);
@@ -154,75 +200,13 @@ async function countRows() {
 async function seed() {
   await ensureCurioSchema();
 
-  const force = process.env.SEED_FORCE === "1";
-
   if (await isSeeded()) {
-    if (!force) {
-      console.log(
-        "Seed data already present (auth_user_id prefix seed:). Set SEED_FORCE=1 to re-seed.",
-      );
-      console.log("Current row counts:", await countRows());
-      return;
-    }
     console.log("SEED_FORCE=1 — clearing existing seed data…");
     await clearSeedData();
   }
 
   await db.transaction(async (tx) => {
-    await tx.insert(users).values([
-      {
-        id: seedUserIds.alice,
-        authUserId: `${SEED_AUTH_PREFIX}alice`,
-        username: "alice_curates",
-        displayName: "Alice Chen",
-        bio: "Digital art curator. Collecting color, light, and character design.",
-        avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=alice",
-        isAdultConfirmed: true,
-        searchIndexable: true,
-        followerCount: 1,
-        followingCount: 0,
-        collectionCount: 2,
-      },
-      {
-        id: seedUserIds.bob,
-        authUserId: `${SEED_AUTH_PREFIX}bob`,
-        username: "bob_beats",
-        displayName: "Bob Rivera",
-        bio: "Ambient and focus music for deep work sessions.",
-        avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=bob",
-        isAdultConfirmed: false,
-        searchIndexable: true,
-        followerCount: 1,
-        followingCount: 0,
-        collectionCount: 1,
-      },
-      {
-        id: seedUserIds.carol,
-        authUserId: `${SEED_AUTH_PREFIX}carol`,
-        username: "carol_reads",
-        displayName: "Carol Nguyen",
-        bio: "Essays, long reads, and thoughtful links.",
-        avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=carol",
-        isAdultConfirmed: true,
-        searchIndexable: true,
-        followerCount: 0,
-        followingCount: 2,
-        collectionCount: 1,
-      },
-      {
-        id: seedUserIds.dev,
-        authUserId: `${SEED_AUTH_PREFIX}dev`,
-        username: "dev_tester",
-        displayName: "Dev Tester",
-        bio: "Internal test account for mature content and unlisted collections.",
-        avatarUrl: "https://api.dicebear.com/9.x/avataaars/svg?seed=dev",
-        isAdultConfirmed: true,
-        searchIndexable: false,
-        followerCount: 0,
-        followingCount: 0,
-        collectionCount: 1,
-      },
-    ]);
+    await tx.insert(users).values(userProfiles);
 
     await tx.insert(creators).values([
       {
@@ -273,7 +257,8 @@ async function seed() {
         id: seedCollectionIds.aliceChars,
         userId: seedUserIds.alice,
         title: "Character Design References",
-        description: "Poses, silhouettes, and anatomy notes for personal projects.",
+        description:
+          "Poses, silhouettes, and anatomy notes for personal projects.",
         coverImageUrl:
           "https://images.unsplash.com/photo-1513364777864-2117a6783145?w=800",
         visibility: "public",
@@ -360,7 +345,8 @@ async function seed() {
         sourceUrlNormalized: normalizeSourceUrl(
           "https://www.pixiv.net/en/artworks/12345678",
         ),
-        description: "Atmospheric environment piece with strong value grouping.",
+        description:
+          "Atmospheric environment piece with strong value grouping.",
         contentType: "image",
         creatorName: "loish_art",
         creatorUrl: "https://www.pixiv.net/users/loish",

@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-
-import { sql } from "./client";
+import { sql } from "@vercel/postgres";
 
 const AUTH_TABLES = new Set(["account", "session", "user", "verification"]);
 
