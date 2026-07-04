@@ -1,5 +1,5 @@
 {
   "extends": "@acme/tsconfig/compiled-package.json",
-  "include": ["src"],
+  "include": ["src", "../db/src/schema.zod.ts"],
   "exclude": ["node_modules"]
 }
