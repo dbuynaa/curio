@@ -1,25 +1,393 @@
-import { sql } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { relations } from "drizzle-orm";
+import {
+  index,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
-export const Post = pgTable("post", (t) => ({
-  id: t.uuid().notNull().primaryKey().defaultRandom(),
-  title: t.varchar({ length: 256 }).notNull(),
-  content: t.text().notNull(),
-  createdAt: t.timestamp().defaultNow().notNull(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+import { user } from "./auth-schema";
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+export const visibilityEnum = pgEnum("visibility", [
+  "public",
+  "unlisted",
+  "private",
+]);
+
+export const contentTypeEnum = pgEnum("content_type", [
+  "image",
+  "video",
+  "audio",
+  "article",
+  "product",
+  "profile",
+  "link", // generic fallback
+]);
+
+// ---------------------------------------------------------------------------
+// profile
+// ---------------------------------------------------------------------------
+
+export const users = pgTable(
+  "users",
+  (t) => ({
+    id: t.uuid().primaryKey().defaultRandom(),
+    // Links to better-auth `user.id` (text). Set during onboarding — a
+    // freshly signed-up auth user has no `profile` row until FR-1.5
+    // completes. Real FK (not just a relation) so referential integrity is
+    // enforced at the DB layer, not just in application code.
+    authUserId: t
+      .text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    username: t.varchar({ length: 30 }).notNull(),
+    displayName: t.varchar({ length: 60 }),
+    bio: t.varchar({ length: 300 }),
+    avatarUrl: t.text(),
+    // FR-2.3 — profiles are indexable by default; owner can opt out
+    searchIndexable: t.boolean().notNull().default(true),
+
+    // Denormalized counters
+    followerCount: t.integer().notNull().default(0),
+    followingCount: t.integer().notNull().default(0),
+    collectionCount: t.integer().notNull().default(0),
+
+    createdAt: t.timestamp({ withTimezone: true }).defaultNow(),
+  }),
+  (table) => [
+    uniqueIndex("users_username_unique").on(table.username),
+    uniqueIndex("users_auth_user_id_unique").on(table.authUserId),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Creators (auto-generated, account-less pages — PRD section 17)
+// ---------------------------------------------------------------------------
+
+export const creators = pgTable(
+  "creators",
+  (t) => ({
+    id: t.uuid().primaryKey().defaultRandom(),
+    // Normalized form of item.creatorName — lowercase, trimmed, common
+    // suffixes stripped (_art, _draws, _music) per PRD 20.4
+    normalizedName: t.varchar({ length: 120 }).notNull(),
+    displayName: t.varchar({ length: 120 }).notNull(),
+    canonicalUrl: t.text(),
+
+    citationCount: t.integer().notNull().default(0),
+    collectionCount: t.integer().notNull().default(0),
+
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [
+    uniqueIndex("creators_normalized_name_unique").on(table.normalizedName),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Collections
+// ---------------------------------------------------------------------------
+
+export const collections = pgTable(
+  "collections",
+  (t) => ({
+    id: t.uuid().primaryKey().defaultRandom(),
+    userId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    title: t.varchar({ length: 120 }).notNull(),
+    description: t.varchar({ length: 500 }),
+    coverImageUrl: t.text(),
+
+    visibility: visibilityEnum().notNull().default("private"),
+    isPublished: t.boolean().notNull().default(false),
+
+    // Free-form, X-style tags — no canonical tag table, PRD 9.2 / 15.1
+    tags: t.text().array().notNull().default([]),
+
+    matureContent: t.boolean().notNull().default(false),
+
+    // Denormalized counters
+    likeCount: t.integer().notNull().default(0),
+    saveCount: t.integer().notNull().default(0),
+    commentCount: t.integer().notNull().default(0),
+    viewCount: t.integer().notNull().default(0),
+
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [
+    index("collections_user_id_idx").on(table.userId),
+    index("collections_visibility_idx").on(table.visibility),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Items
+// ---------------------------------------------------------------------------
+
+export const items = pgTable(
+  "items",
+  (t) => ({
+    id: t.uuid().primaryKey().defaultRandom(),
+    collectionId: t
+      .uuid()
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+
+    title: t.varchar({ length: 200 }).notNull(),
+
+    sourceUrl: t.text(),
+    sourceUrlNormalized: t.text(),
+    isLinkBroken: t.boolean().notNull().default(false),
+
+    description: t.text(),
+
+    contentType: contentTypeEnum().notNull().default("link"),
+
+    creatorName: t.varchar({ length: 120 }),
+    creatorUrl: t.text(),
+    creatorId: t.uuid().references(() => creators.id, {
+      onDelete: "set null",
+    }),
+
+    thumbnailUrl: t.text(),
+
+    tags: t.text().array().notNull().default([]),
+
+    matureContent: t.boolean().notNull().default(false),
+
+    position: t.integer().notNull().default(0),
+
+    // Denormalized counters
+    likeCount: t.integer().notNull().default(0),
+    frequencyCount: t.integer().notNull().default(0),
+    commentCount: t.integer().notNull().default(0),
+
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [
+    index("items_collection_id_idx").on(table.collectionId),
+    index("items_source_url_normalized_idx").on(table.sourceUrlNormalized),
+    index("items_creator_id_idx").on(table.creatorId),
+    uniqueIndex("items_collection_position_idx").on(
+      table.collectionId,
+      table.position,
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Follows
+// ---------------------------------------------------------------------------
+
+export const follows = pgTable(
+  "follows",
+  (t) => ({
+    followerId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    followingId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [
+    primaryKey({ columns: [table.followerId, table.followingId] }),
+    index("follows_following_id_idx").on(table.followingId),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Likes — collection-level and item-level are separate signals (PRD 10)
+// ---------------------------------------------------------------------------
+
+export const collectionLikes = pgTable(
+  "collection_likes",
+  (t) => ({
+    userId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    collectionId: t
+      .uuid()
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [primaryKey({ columns: [table.userId, table.collectionId] })],
+);
+
+export const itemLikes = pgTable(
+  "item_likes",
+  (t) => ({
+    userId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    itemId: t
+      .uuid()
+      .notNull()
+      .references(() => items.id, { onDelete: "cascade" }),
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [primaryKey({ columns: [table.userId, table.itemId] })],
+);
+
+// ---------------------------------------------------------------------------
+// Saves — private bookmark.
+// ---------------------------------------------------------------------------
+
+export const saves = pgTable(
+  "saves",
+  (t) => ({
+    userId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    collectionId: t
+      .uuid()
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  }),
+  (table) => [primaryKey({ columns: [table.userId, table.collectionId] })],
+);
+
+// ---------------------------------------------------------------------------
+// Comments — collection-level and item-anchored, one level deep (PRD 16.5)
+// ---------------------------------------------------------------------------
+
+export const comments = pgTable(
+  "comments",
+  (t) => ({
+    id: t.uuid().primaryKey().defaultRandom(),
+    userId: t
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    collectionId: t
+      .uuid()
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+
+    itemId: t.uuid().references(() => items.id, {
+      onDelete: "cascade",
+    }),
+
+    parentCommentId: t.uuid(),
+
+    body: t.text().notNull(),
+
+    createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
+    deletedAt: t.timestamp({ withTimezone: true }),
+  }),
+  (table) => [
+    index("comments_collection_id_idx").on(table.collectionId),
+    index("comments_item_id_idx").on(table.itemId),
+    index("comments_parent_comment_id_idx").on(table.parentCommentId),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Relations
+// ---------------------------------------------------------------------------
+
+export const profileRelations = relations(users, ({ one, many }) => ({
+  user: one(user, {
+    fields: [users.authUserId],
+    references: [user.id],
+  }),
+  collections: many(collections),
+  comments: many(comments),
+  collectionLikes: many(collectionLikes),
+  itemLikes: many(itemLikes),
+  saves: many(saves),
+  following: many(follows, { relationName: "follower" }),
+  followers: many(follows, { relationName: "following" }),
 }));
 
-export const CreatePostSchema = createInsertSchema(Post, {
-  title: z.string().max(256),
-  content: z.string().max(256),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const creatorsRelations = relations(creators, ({ many }) => ({
+  items: many(items),
+}));
+
+export const collectionsRelations = relations(collections, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [collections.userId],
+    references: [users.id],
+  }),
+  items: many(items),
+  comments: many(comments),
+  likes: many(collectionLikes),
+  saves: many(saves),
+}));
+
+export const itemsRelations = relations(items, ({ one, many }) => ({
+  collection: one(collections, {
+    fields: [items.collectionId],
+    references: [collections.id],
+  }),
+  creator: one(creators, {
+    fields: [items.creatorId],
+    references: [creators.id],
+  }),
+  likes: many(itemLikes),
+  comments: many(comments),
+}));
+
+export const followsRelations = relations(follows, ({ one }) => ({
+  follower: one(users, {
+    fields: [follows.followerId],
+    references: [users.id],
+    relationName: "follower",
+  }),
+  following: one(users, {
+    fields: [follows.followingId],
+    references: [users.id],
+    relationName: "following",
+  }),
+}));
+
+export const savesRelations = relations(saves, ({ one }) => ({
+  user: one(users, {
+    fields: [saves.userId],
+    references: [users.id],
+  }),
+  collection: one(collections, {
+    fields: [saves.collectionId],
+    references: [collections.id],
+  }),
+}));
+
+export const commentsRelations = relations(comments, ({ one, many }) => ({
+  author: one(users, {
+    fields: [comments.userId],
+    references: [users.id],
+  }),
+  collection: one(collections, {
+    fields: [comments.collectionId],
+    references: [collections.id],
+  }),
+  item: one(items, {
+    fields: [comments.itemId],
+    references: [items.id],
+  }),
+  parentComment: one(comments, {
+    fields: [comments.parentCommentId],
+    references: [comments.id],
+    relationName: "comment_replies",
+  }),
+  replies: many(comments, { relationName: "comment_replies" }),
+}));
 
 export * from "./auth-schema";
