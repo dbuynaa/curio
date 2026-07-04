@@ -6,9 +6,10 @@ import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
 import {
   getCollection,
   getCurator,
-  slugify,
-  type Item,
+  slugify
+  
 } from "~/lib/mock-data";
+import type {Item} from "~/lib/mock-data";
 
 interface PageProps {
   params: Promise<{ id: string }>;

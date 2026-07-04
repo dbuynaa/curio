@@ -6,9 +6,10 @@ import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
 import {
   curators,
   getCollectionsByCurator,
-  getCurator,
-  type Collection,
+  getCurator
+  
 } from "~/lib/mock-data";
+import type {Collection} from "~/lib/mock-data";
 
 interface PageProps {
   params: Promise<{ username: string }>;

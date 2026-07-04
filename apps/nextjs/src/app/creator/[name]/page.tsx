@@ -4,10 +4,11 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
 import {
-  getCreatorBySlug,
-  type Collection,
-  type Item,
+  getCreatorBySlug
+  
+  
 } from "~/lib/mock-data";
+import type {Collection, Item} from "~/lib/mock-data";
 
 interface PageProps {
   params: Promise<{ name: string }>;

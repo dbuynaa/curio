@@ -8,6 +8,8 @@ export function authEnv() {
         process.env.NODE_ENV === "production"
           ? z.string().min(1)
           : z.string().min(1).optional(),
+      AUTH_GOOGLE_ID: z.string(),
+      AUTH_GOOGLE_SECRET: z.string(),
       NODE_ENV: z.enum(["development", "production"]).optional(),
     },
     runtimeEnv: process.env,
