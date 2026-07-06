@@ -5,6 +5,7 @@ import { eq, sql } from "@acme/db";
 import { users } from "@acme/db/schema";
 import { userUpdateSchema } from "@acme/db/validators";
 
+import { normalizeCreatorName } from "../lib/creator";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -133,5 +134,55 @@ export const userRouter = createTRPCRouter({
         .where(eq(users.id, ctx.user.id))
         .returning();
       return updated;
+    }),
+
+  // FR-8.1 — auto-generated creator page; no account required for the creator.
+  // Only shows works from public, published collections.
+  byNormalizedName: publicProcedure
+    .input(z.object({ normalizedName: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const creator = await ctx.db.query.creators.findFirst({
+        where: {
+          normalizedName: input.normalizedName,
+        },
+      });
+      if (!creator) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const candidateWorks = await ctx.db.query.items.findMany({
+        where: {
+          creatorId: creator.id,
+        },
+        orderBy: {
+          frequencyCount: "desc",
+        },
+        limit: 20,
+        with: {
+          collection: { columns: { visibility: true, isPublished: true } },
+        },
+      });
+
+      return {
+        creator,
+        topWorks: candidateWorks.filter(
+          (i) =>
+            i.collection?.visibility === "public" && i.collection.isPublished,
+        ),
+      };
+    }),
+
+  // FR-8.2 — lightweight "did you mean" suggestion at add-time; never blocks
+  // creation of a distinct entry if the curator declines the match.
+  // MVP-level substring match; swap for pg_trgm similarity() once the
+  // creators table is large enough for relevance to matter.
+  suggestMatch: publicProcedure
+    .input(z.object({ creatorName: z.string().min(1) }))
+    .query(({ ctx, input }) => {
+      const normalized = normalizeCreatorName(input.creatorName);
+      return ctx.db.query.creators.findMany({
+        where: {
+          normalizedName: { like: `%${normalized}%` },
+        },
+        limit: 5,
+      });
     }),
 });

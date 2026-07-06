@@ -27,6 +27,81 @@ async function assertOwnership(db: DB, collectionId: string, userId: string) {
 }
 
 export const collectionRouter = createTRPCRouter({
+  search: publicProcedure
+    .input(z.object({ query: z.string().min(1).max(200) }))
+    .query(async ({ ctx, input }) => {
+      const q = `%${input.query}%`;
+
+      const [collectionResults, itemResults, userResults, creatorResults] =
+        await Promise.all([
+          ctx.db.query.collections.findMany({
+            where: {
+              visibility: "public",
+              isPublished: true,
+              OR: [
+                { title: { like: q } },
+                { description: { like: q } },
+                { tags: { like: q } },
+              ],
+            },
+            with: { owner: true },
+            limit: 25,
+          }),
+          ctx.db.query.items.findMany({
+            where: {
+              OR: [
+                { title: { like: q } },
+                { description: { like: q } },
+                { creatorName: { like: q } },
+                { tags: { like: q } },
+              ],
+            },
+            with: {
+              collection: { columns: { visibility: true, isPublished: true } },
+            },
+            limit: 25,
+          }),
+          // FR-2.3 — search-indexable opt-out is honored here too
+          ctx.db.query.users.findMany({
+            where: {
+              searchIndexable: true,
+              OR: [
+                { username: { like: q } },
+                { displayName: { like: q } },
+                { bio: { like: q } },
+              ],
+            },
+            limit: 25,
+          }),
+          ctx.db.query.creators.findMany({
+            where: {
+              OR: [{ displayName: { like: q } }],
+            },
+            limit: 25,
+          }),
+        ]);
+
+      return {
+        collections: collectionResults,
+        items: itemResults.filter(
+          (i) =>
+            i.collection?.visibility === "public" && i.collection.isPublished,
+        ),
+        users: userResults,
+        creators: creatorResults,
+      };
+    }),
+  // FR-3.7 — list of recent collections for the homepage; only published
+  // collections are shown, and only the first 6 are returned.
+  recent: publicProcedure.query(async ({ ctx }) => {
+    const recentCollections = await ctx.db.query.collections.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+      limit: 6,
+      with: { owner: true },
+    });
+    return recentCollections;
+  }),
   // FR-3.1 — always created unpublished regardless of chosen visibility
   create: protectedProcedure
     .input(collectionInsertSchema)
