@@ -198,7 +198,14 @@ export const socialRouter = createTRPCRouter({
   mySaves: protectedProcedure.query(({ ctx }) =>
     ctx.db.query.saves.findMany({
       where: { userId: ctx.user.id },
-      with: { collection: { with: { owner: true } } },
+      with: {
+        collection: {
+          with: {
+            owner: true,
+            items: { columns: { id: true } },
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     }),
   ),

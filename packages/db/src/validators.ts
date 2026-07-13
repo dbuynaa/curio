@@ -157,17 +157,19 @@ export const itemSelectSchema = createSelectSchema(items, {
 export const itemInsertSchema = createInsertSchema(items, {
   title: (schema) => schema.min(1, "Title is required").max(200),
   sourceUrl: () => urlOptional(),
-  sourceUrlNormalized: () => z.string().max(2048).optional().nullable(),
   description: (schema) => schema.optional().nullable(),
   contentType: () => contentTypeSchema.default("link"),
   creatorName: (schema) => schema.max(120).optional().nullable(),
   creatorUrl: () => urlOptional(),
   thumbnailUrl: () => urlOptional(),
   tags: () => tagsArray(),
-  position: (schema) => schema.int().nonnegative().default(0),
+  position: () => z.number().int().nonnegative().default(0),
 }).omit({
   id: true,
   collectionId: true,
+  // sourceUrlNormalized is always derived server-side from sourceUrl
+  // (see itemRouter.create) — never accept it from the client.
+  sourceUrlNormalized: true,
   isLinkBroken: true,
   creatorId: true,
   likeCount: true,
@@ -186,7 +188,7 @@ export const itemUpdateSchema = createUpdateSchema(items, {
   creatorUrl: () => urlOptional(),
   thumbnailUrl: () => urlOptional(),
   tags: () => tagsArray().optional(),
-  position: (schema) => schema.int().nonnegative().optional(),
+  position: () => z.number().int().nonnegative().optional(),
 }).omit({
   id: true,
   collectionId: true,

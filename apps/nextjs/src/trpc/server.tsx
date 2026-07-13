@@ -26,6 +26,8 @@ const createContext = cache(async () => {
 
 const getQueryClient = cache(createQueryClient);
 
+export { getQueryClient }; // <-- add this export
+
 export const trpc = createTRPCOptionsProxy<AppRouter>({
   router: appRouter,
   ctx: createContext,

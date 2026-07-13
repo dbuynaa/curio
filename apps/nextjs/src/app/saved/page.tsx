@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
-import { collections } from "~/lib/mock-data";
+import { requireProfile } from "~/lib/require-auth";
+import { getQueryClient, trpc } from "~/trpc/server";
 
 export const metadata: Metadata = {
   title: "Saved — Curio",
@@ -15,11 +16,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SavedPage() {
-  const savedItems = collections
-    .slice(0, 2)
-    .flatMap((c) => c.items.slice(0, 2).map((item) => ({ item, collection: c })));
-  const savedCollections = collections.slice(1, 3);
+export default async function SavedPage() {
+  await requireProfile("/saved");
+
+  const savedCollections = await getQueryClient().fetchQuery(
+    trpc.social.mySaves.queryOptions(),
+  );
+  const savedCollectionRows = savedCollections.flatMap((save) =>
+    save.collection ? [save.collection] : [],
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -33,68 +38,41 @@ export default function SavedPage() {
             <h1 className="text-4xl font-semibold tracking-tighter">Saved</h1>
           </div>
           <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
-            {savedItems.length + savedCollections.length} bookmarked
+            {savedCollectionRows.length} bookmarked
           </span>
         </header>
 
         <section>
           <h2 className="font-mono text-[10px] text-primary uppercase tracking-widest mb-6 border-b border-border pb-3">
-            Items ({savedItems.length})
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
-            {savedItems.map(({ item, collection }) => (
-              <Link
-                key={`${collection.id}-${item.id}`}
-                href={`/item/${collection.id}/${item.id}`}
-                className="bg-paper border border-border hover:border-foreground transition-colors block"
-              >
-                <div className="aspect-square overflow-hidden bg-stone-100">
-                  <img
-                    src={item.thumbnail}
-                    alt={item.title}
-                    width={500}
-                    height={500}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-3">
-                  <h3 className="text-sm font-semibold truncate">{item.title}</h3>
-                  <p className="font-mono text-[10px] text-muted uppercase tracking-widest mt-1 truncate">
-                    {item.creator ?? item.source}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h2 className="font-mono text-[10px] text-primary uppercase tracking-widest mb-6 border-b border-border pb-3">
-            Collections ({savedCollections.length})
+            Collections ({savedCollectionRows.length})
           </h2>
           <div className="space-y-1">
-            {savedCollections.map((c) => (
+            {savedCollectionRows.map((collection) => (
               <Link
-                key={c.id}
-                href={`/collection/${c.id}`}
+                key={collection.id}
+                href={`/collection/${collection.id}`}
                 className="grid grid-cols-[80px_1fr_auto] gap-5 items-center bg-paper border border-border p-4 hover:border-foreground"
               >
-                <img
-                  src={c.cover}
-                  alt={c.name}
-                  width={160}
-                  height={160}
-                  loading="lazy"
-                  className="size-20 object-cover border border-border"
-                />
+                <div className="size-20 overflow-hidden border border-border bg-stone-100">
+                  {collection.coverImageUrl ? (
+                    <img
+                      src={collection.coverImageUrl}
+                      alt={collection.title}
+                      width={160}
+                      height={160}
+                      loading="lazy"
+                      className="size-20 object-cover"
+                    />
+                  ) : null}
+                </div>
                 <div>
-                  <h3 className="font-semibold">{c.name}</h3>
+                  <h3 className="font-semibold">{collection.title}</h3>
                   <p className="text-xs text-muted line-clamp-1 mt-1">
-                    {c.description}
+                    {collection.description}
                   </p>
                   <p className="font-mono text-[10px] text-muted uppercase tracking-widest mt-2">
-                    @{c.curatorUsername} · {c.items.length} items
+                    @{collection.owner?.username ?? "curator"} ·{" "}
+                    {collection.items.length} items
                   </p>
                 </div>
                 <span className="font-mono text-[10px] text-primary uppercase tracking-widest">

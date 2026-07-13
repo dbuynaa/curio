@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { requireProfile } from "~/lib/require-auth";
+
 export const metadata: Metadata = {
   title: "New Collection — Curio",
   description:
@@ -11,6 +13,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function NewLayout({ children }: { children: React.ReactNode }) {
+export default async function NewLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  await requireProfile("/collection/new");
   return children;
 }

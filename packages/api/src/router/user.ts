@@ -14,7 +14,13 @@ import {
 } from "../trpc";
 
 export const userRouter = createTRPCRouter({
-  me: protectedProcedure.query(({ ctx }) => ctx.user),
+  me: sessionProcedure.query(async ({ ctx }) => {
+    const profile = await ctx.db.query.users.findFirst({
+      where: { authUserId: ctx.session.user.id },
+    });
+
+    return profile ?? null;
+  }),
 
   // FR-2.1 — public profile page; only public + published collections in the grid
   byUsername: publicProcedure
@@ -34,6 +40,9 @@ export const userRouter = createTRPCRouter({
           isPublished: true,
         },
         orderBy: { createdAt: "desc" },
+        with: {
+          items: { columns: { id: true } },
+        },
       });
 
       return { profile, collections: publicCollections };
@@ -141,9 +150,12 @@ export const userRouter = createTRPCRouter({
   byNormalizedName: publicProcedure
     .input(z.object({ normalizedName: z.string() }))
     .query(async ({ ctx, input }) => {
+      const normalizedName = normalizeCreatorName(
+        input.normalizedName.replace(/-/g, " "),
+      );
       const creator = await ctx.db.query.creators.findFirst({
         where: {
-          normalizedName: input.normalizedName,
+          normalizedName,
         },
       });
       if (!creator) throw new TRPCError({ code: "NOT_FOUND" });
@@ -157,7 +169,14 @@ export const userRouter = createTRPCRouter({
         },
         limit: 20,
         with: {
-          collection: { columns: { visibility: true, isPublished: true } },
+          collection: {
+            columns: {
+              id: true,
+              title: true,
+              visibility: true,
+              isPublished: true,
+            },
+          },
         },
       });
 

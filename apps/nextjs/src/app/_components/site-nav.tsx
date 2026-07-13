@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { AuthNav } from "~/app/_components/auth-nav";
+
 function PillLink({
   href,
   label,
@@ -20,8 +22,8 @@ function PillLink({
       href={href}
       className={
         active
-          ? "px-4 py-2 rounded-full text-[13px] font-medium bg-foreground text-background"
-          : "px-4 py-2 rounded-full text-[13px] font-medium text-muted hover:text-foreground transition-colors"
+          ? "bg-foreground text-background rounded-full px-4 py-2 text-[13px] font-medium"
+          : "text-muted hover:text-foreground rounded-full px-4 py-2 text-[13px] font-medium transition-colors"
       }
     >
       {label}
@@ -31,14 +33,14 @@ function PillLink({
 
 export function SiteNav() {
   return (
-    <nav className="px-6 py-5 flex justify-between items-center bg-background">
-      <Link href="/" className="flex items-center gap-2 group">
-        <span className="grid place-items-center size-7 rounded-md bg-foreground text-background font-semibold text-sm">
+    <nav className="bg-background flex items-center justify-between px-6 py-5">
+      <Link href="/" className="group flex items-center gap-2">
+        <span className="bg-foreground text-background grid size-7 place-items-center rounded-md text-sm font-semibold">
           C
         </span>
         <span className="text-lg font-semibold tracking-tight">Curio</span>
       </Link>
-      <div className="hidden md:flex gap-1 items-center">
+      <div className="hidden items-center gap-1 md:flex">
         <PillLink href="/" label="Explore" exact />
         <PillLink href="/following" label="Following" />
         <PillLink href="/search" label="Search" />
@@ -46,16 +48,11 @@ export function SiteNav() {
         <PillLink href="/about" label="About" />
       </div>
 
-      <div className="flex gap-2 items-center">
+      <div className="flex items-center gap-2">
+        <AuthNav />
         <Link
-          href="/u/julian_s"
-          className="hidden sm:inline-flex px-4 py-2 rounded-full text-[13px] font-medium text-muted hover:text-foreground transition-colors"
-        >
-          @julian_s
-        </Link>
-        <Link
-          href="/new"
-          className="px-4 py-2 rounded-full text-[13px] font-medium bg-foreground text-background hover:bg-foreground/85 transition-colors"
+          href="/collection/new"
+          className="bg-foreground text-background hover:bg-foreground/85 rounded-full px-4 py-2 text-[13px] font-medium transition-colors"
         >
           New collection
         </Link>
@@ -66,20 +63,20 @@ export function SiteNav() {
 
 export function SiteFooter() {
   return (
-    <footer className="py-16 mt-24 px-6">
-      <div className="max-w-6xl mx-auto rounded-3xl bg-foreground text-background p-10 md:p-14 flex flex-col md:flex-row md:items-end justify-between gap-8">
+    <footer className="mt-24 px-6 py-16">
+      <div className="bg-foreground text-background mx-auto flex max-w-6xl flex-col justify-between gap-8 rounded-3xl p-10 md:flex-row md:items-end md:p-14">
         <div>
-          <div className="flex items-center gap-2 mb-6">
-            <span className="grid place-items-center size-7 rounded-md bg-background text-foreground font-semibold text-sm">
+          <div className="mb-6 flex items-center gap-2">
+            <span className="bg-background text-foreground grid size-7 place-items-center rounded-md text-sm font-semibold">
               C
             </span>
             <span className="text-lg font-semibold tracking-tight">Curio</span>
           </div>
-          <h3 className="text-4xl md:text-5xl font-semibold tracking-tight max-w-xl leading-[1.05]">
+          <h3 className="max-w-xl text-4xl leading-[1.05] font-semibold tracking-tight md:text-5xl">
             Curation, with credit.
           </h3>
         </div>
-        <div className="flex gap-8 text-sm text-background/60">
+        <div className="text-background/60 flex gap-8 text-sm">
           <div className="flex flex-col gap-2">
             <Link href="/" className="hover:text-background">
               Explore

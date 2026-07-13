@@ -6,7 +6,9 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-import { user } from "./auth-schema";
+import { account, session, user, verification } from "./auth-schema";
+
+export { account, session, user, verification } from "./auth-schema";
 
 const pgTable = snakeCase.table;
 

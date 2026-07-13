@@ -3,21 +3,28 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
-import { searchAll } from "~/lib/mock-data";
+import { useTRPC } from "~/trpc/react";
 
 function SearchContent() {
+  const trpc = useTRPC();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
   const [q, setQ] = useState(initialQuery);
-  const results = searchAll(q);
   const hasQuery = q.trim().length > 0;
+  const { data: results, isFetching } = useQuery({
+    ...trpc.collection.search.queryOptions({ query: q.trim() }),
+    enabled: hasQuery,
+  });
+
   const empty =
     hasQuery &&
-    results.collections.length === 0 &&
-    results.curators.length === 0 &&
-    results.creators.length === 0;
+    !isFetching &&
+    (results?.collections.length ?? 0) === 0 &&
+    (results?.users.length ?? 0) === 0 &&
+    (results?.creators.length ?? 0) === 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -50,7 +57,13 @@ function SearchContent() {
           </p>
         )}
 
-        {hasQuery && (
+        {isFetching && (
+          <p className="font-mono text-[10px] text-muted uppercase tracking-widest">
+            Searching the live catalogue…
+          </p>
+        )}
+
+        {hasQuery && results && (
           <div className="space-y-12 mt-8">
             {results.collections.length > 0 && (
               <Section title={`Collections (${results.collections.length})`}>
@@ -61,9 +74,9 @@ function SearchContent() {
                         href={`/collection/${c.id}`}
                         className="flex items-baseline justify-between py-4 hover:text-primary transition-colors"
                       >
-                        <span className="font-semibold">{c.name}</span>
+                        <span className="font-semibold">{c.title}</span>
                         <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
-                          {c.category}
+                          @{c.owner?.username ?? "curator"}
                         </span>
                       </Link>
                     </li>
@@ -72,26 +85,31 @@ function SearchContent() {
               </Section>
             )}
 
-            {results.curators.length > 0 && (
-              <Section title={`Curators (${results.curators.length})`}>
+            {results.users.length > 0 && (
+              <Section title={`Curators (${results.users.length})`}>
                 <ul className="space-y-3">
-                  {results.curators.map((c) => (
+                  {results.users.map((c) => (
                     <li key={c.username}>
                       <Link
                         href={`/u/${c.username}`}
                         className="flex items-center gap-3 group"
                       >
-                        <img
-                          src={c.avatar}
-                          alt={c.displayName}
-                          className="size-10 rounded-full object-cover"
-                        />
+                        {c.avatarUrl ? (
+                          <img
+                            src={c.avatarUrl}
+                            alt={c.displayName ?? c.username}
+                            className="size-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="bg-paper border-border size-10 border" />
+                        )}
                         <div>
                           <div className="font-semibold group-hover:text-primary transition-colors">
                             @{c.username}
                           </div>
                           <div className="font-mono text-[10px] text-muted uppercase tracking-widest">
-                            {c.displayName} / {c.location}
+                            {c.displayName ?? "Curator"} /{" "}
+                            {c.collectionCount} collections
                           </div>
                         </div>
                       </Link>
@@ -105,14 +123,14 @@ function SearchContent() {
               <Section title={`Cited creators (${results.creators.length})`}>
                 <ul className="divide-y divide-border border-y border-border">
                   {results.creators.map((c) => (
-                    <li key={c.slug}>
+                    <li key={c.id}>
                       <Link
-                        href={`/creator/${c.slug}`}
+                        href={`/creator/${c.normalizedName}`}
                         className="flex items-baseline justify-between py-4 hover:text-primary transition-colors"
                       >
-                        <span className="font-semibold">{c.name}</span>
+                        <span className="font-semibold">{c.displayName}</span>
                         <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
-                          {c.items.length} works
+                          {c.citationCount} works
                         </span>
                       </Link>
                     </li>

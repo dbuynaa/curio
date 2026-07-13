@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @acme/nextjs build",
+  "outputDirectory": "apps/nextjs/.next"
+}

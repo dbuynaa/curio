@@ -95,12 +95,27 @@ export const collectionRouter = createTRPCRouter({
   // collections are shown, and only the first 6 are returned.
   recent: publicProcedure.query(async ({ ctx }) => {
     const recentCollections = await ctx.db.query.collections.findMany({
-      where: { isPublished: true },
+      where: { isPublished: true, visibility: "public" },
       orderBy: { createdAt: "desc" },
       limit: 6,
-      with: { owner: true },
+      with: {
+        owner: {
+          columns: { username: true, displayName: true, avatarUrl: true },
+        },
+        items: { columns: { id: true } }, // just need the count
+      },
     });
-    return recentCollections;
+
+    return recentCollections.map((c) => ({
+      id: c.id,
+      title: c.title,
+      coverImageUrl: c.coverImageUrl,
+      tags: c.tags,
+      likeCount: c.likeCount,
+      saveCount: c.saveCount,
+      itemCount: c.items.length,
+      owner: c.owner,
+    }));
   }),
   // FR-3.1 — always created unpublished regardless of chosen visibility
   create: protectedProcedure
