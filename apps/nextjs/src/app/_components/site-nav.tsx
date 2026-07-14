@@ -42,7 +42,6 @@ export function SiteNav() {
       </Link>
       <div className="hidden items-center gap-1 md:flex">
         <PillLink href="/" label="Explore" exact />
-        <PillLink href="/following" label="Following" />
         <PillLink href="/search" label="Search" />
         <PillLink href="/saved" label="Saved" />
         <PillLink href="/about" label="About" />
