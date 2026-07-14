@@ -1,15 +1,10 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "./node_modules/turbo/schema.json",
   "extends": ["//"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "next-env.d.ts",
-        "apps/nextjs/.next/**"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "next-env.d.ts"]
     },
     "dev": {
       "persistent": true
