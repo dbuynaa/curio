@@ -3,41 +3,33 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
 
+import type { ItemFormValues, NewCollectionFormValues } from "@acme/validators";
 import { Button } from "@acme/ui/button";
 import { Field, FieldContent, FieldError, FieldLabel } from "@acme/ui/field";
 import { Input } from "@acme/ui/input";
 import { Textarea } from "@acme/ui/textarea";
 import { toast } from "@acme/ui/toast";
+import {
+  itemFormSchema,
+  newCollectionFormSchema,
+  publishCollectionFormSchema,
+  toCollectionInsert,
+  toItemInsert,
+} from "@acme/validators";
 
+import { ImageUpload } from "~/app/_components/image-upload";
 import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
 import { useTRPC } from "~/trpc/react";
 
-// Client-side form schema — shaped to match form defaultValues exactly
-// (plain, non-nullable strings), not reusing the DB insert schema's
-// optional/nullable shape.
-const ItemFormSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200),
-  sourceUrl: z
-    .string()
-    .max(2048)
-    .refine((v) => v === "" || z.url().safeParse(v).success, {
-      message: "Must be a valid URL",
-    }),
-  creatorName: z.string().max(120),
-  description: z.string(),
-});
-
-const NewCollectionSchema = z.object({
-  title: z.string().min(1, "Title is required").max(120),
-  description: z.string().max(500),
-  tags: z.array(z.string().trim().min(1).max(40)).max(30),
-  items: z.array(ItemFormSchema).min(1, "Add at least one item"),
-});
-
-function emptyItem() {
-  return { title: "", sourceUrl: "", creatorName: "", description: "" };
+function emptyItem(): ItemFormValues {
+  return {
+    title: "",
+    sourceUrl: "",
+    creatorName: "",
+    description: "",
+    thumbnailUrl: "",
+  };
 }
 
 export default function NewCollectionPage() {
@@ -59,13 +51,13 @@ export default function NewCollectionPage() {
 
   const createItem = useMutation(
     trpc.item.create.mutationOptions({
-      onError: (err) => toast.error(err.message), // surfaces BAD_REQUEST from validateSourceUrl
+      onError: (err) => toast.error(err.message),
     }),
   );
 
   const publish = useMutation(
     trpc.collection.publish.mutationOptions({
-      onError: (err) => toast.error(err.message), // lists missing-field item titles
+      onError: (err) => toast.error(err.message),
     }),
   );
 
@@ -77,33 +69,34 @@ export default function NewCollectionPage() {
       title: "",
       description: "",
       tags: [] as string[],
+      coverImageUrl: "",
       items: [emptyItem()],
-    },
-    validators: { onSubmit: NewCollectionSchema },
+    } as NewCollectionFormValues,
+
+    validators: { onSubmit: publishCollectionFormSchema },
+
     onSubmit: async ({ value }) => {
       await saveCollection(value, true);
     },
   });
 
   async function saveCollection(
-    value: typeof form.state.values,
+    value: NewCollectionFormValues,
     publishNow: boolean,
   ) {
-    const collection = await createCollection.mutateAsync({
-      title: value.title,
-      description: value.description || undefined,
-      tags: value.tags,
-    });
+    // Typed against the server's real collectionInsertSchema via tRPC's
+    // inferred input — if that schema's shape changes, this call site
+    // fails to compile until updated.
+    const collection = await createCollection.mutateAsync(
+      toCollectionInsert(value),
+    );
     if (!collection) return;
 
     await Promise.all(
       value.items.map((item) =>
         createItem.mutateAsync({
           collectionId: collection.id,
-          title: item.title,
-          sourceUrl: item.sourceUrl || undefined,
-          creatorName: item.creatorName || undefined,
-          description: item.description || undefined,
+          ...toItemInsert(item),
         }),
       ),
     );
@@ -147,6 +140,7 @@ export default function NewCollectionPage() {
 
             <form.Field
               name="title"
+              validators={{ onChange: newCollectionFormSchema.shape.title }}
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
@@ -220,6 +214,18 @@ export default function NewCollectionPage() {
                 </Field>
               )}
             />
+
+            <form.Field
+              name="coverImageUrl"
+              children={(field) => (
+                <ImageUpload
+                  label="Collection cover"
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  purpose="collection-cover"
+                />
+              )}
+            />
           </section>
 
           <section className="border-border space-y-6 border-t pt-10">
@@ -258,6 +264,9 @@ export default function NewCollectionPage() {
 
                         <form.Field
                           name={`items[${index}].sourceUrl`}
+                          validators={{
+                            onChange: itemFormSchema.shape.sourceUrl,
+                          }}
                           children={(field) => {
                             const isInvalid =
                               field.state.meta.isTouched &&
@@ -294,6 +303,9 @@ export default function NewCollectionPage() {
                         <div className="grid gap-4 md:grid-cols-2">
                           <form.Field
                             name={`items[${index}].title`}
+                            validators={{
+                              onChange: itemFormSchema.shape.title,
+                            }}
                             children={(field) => {
                               const isInvalid =
                                 field.state.meta.isTouched &&
@@ -381,6 +393,18 @@ export default function NewCollectionPage() {
                               </Field>
                             );
                           }}
+                        />
+
+                        <form.Field
+                          name={`items[${index}].thumbnailUrl`}
+                          children={(field) => (
+                            <ImageUpload
+                              label="Item image"
+                              value={field.state.value}
+                              onChange={field.handleChange}
+                              purpose="item-thumbnail"
+                            />
+                          )}
                         />
                       </article>
                     ))}

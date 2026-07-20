@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fc4e20ed-018a-4657-95d7-a27491d6eac7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/prettier.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/nextjs/src/app/collection/new/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/nextjs/src/app/collection/new/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/db/src/validators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/db/src/validators.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/buynaadamdinsuren/Documents/GitHub/curio" value="3GgGJrK4foWBH9kOFL8Auklosg2" />
+    </persistenceIdMap>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="727" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;dbuynaa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/dbuynaa/curio.git&quot;,
+    &quot;accountId&quot;: &quot;0ee5c2d5-c418-4f82-bded-1f1369170a8a&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="5.8191751822448E-239" />
+      <entry key="MS500" value="2.2540953666577485E-48" />
+      <entry key="S2" value="1.2253018002099373E-12" />
+      <entry key="S5" value="1.7190845161396475E-5" />
+      <entry key="S10" value="0.00414618440996059" />
+      <entry key="S30" value="0.16065920685369464" />
+      <entry key="S60" value="0.4044411559129261" />
+      <entry key="M2" value="0.7158496952094056" />
+      <entry key="M5" value="1.7110515363673084" />
+      <entry key="M10" value="7.035814973152281" />
+      <entry key="M15" value="16.55013949257335" />
+      <entry key="M30" value="45.660345075431444" />
+      <entry key="H1" value="79.31709868225204" />
+      <entry key="H2" value="105.47691411503072" />
+      <entry key="H4" value="121.87589444026096" />
+      <entry key="D1" value="137.6044314640381" />
+      <entry key="W1" value="140.50955182698632" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0003177104139263" />
+      <entry key="S2" value="1.1335081760059815" />
+      <entry key="S5" value="1.4468925811783935" />
+      <entry key="S10" value="1.668500247702567" />
+      <entry key="S30" value="1.8743814489776485" />
+      <entry key="S60" value="1.9359942065536304" />
+      <entry key="M2" value="1.9992430436620778" />
+      <entry key="M5" value="2.437801872206431" />
+      <entry key="M10" value="3.6000699843404527" />
+      <entry key="M15" value="4.7016223445258" />
+      <entry key="M30" value="6.928964993957269" />
+      <entry key="H1" value="8.91500551760735" />
+      <entry key="H2" value="10.282354649068006" />
+      <entry key="H4" value="11.091390472477373" />
+      <entry key="D1" value="11.841066250539013" />
+      <entry key="W1" value="11.977103351987116" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="2.4927053850273286E-4" />
+      <entry key="MS500" value="0.19031312867968322" />
+      <entry key="S2" value="0.7480661011093594" />
+      <entry key="S5" value="1.2247316698156003" />
+      <entry key="S10" value="1.5388837364224566" />
+      <entry key="S30" value="1.9816248110585648" />
+      <entry key="S60" value="2.3111755947297046" />
+      <entry key="M2" value="2.6984428487280065" />
+      <entry key="M5" value="4.136351551637369" />
+      <entry key="M10" value="10.621859182470796" />
+      <entry key="M15" value="21.237542069817216" />
+      <entry key="M30" value="52.577433377218824" />
+      <entry key="H1" value="88.22413339221465" />
+      <entry key="H2" value="115.75460631405397" />
+      <entry key="H4" value="132.96475726118956" />
+      <entry key="D1" value="149.44504649835963" />
+      <entry key="W1" value="152.48658994890488" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="3GgGJrK4foWBH9kOFL8Auklosg2" />
+  <component name="ProjectSessionTemplates">
+    <option name="panelTemplate">
+      <template>
+        <option name="modeId" value="Agent" />
+        <option name="model">
+          <model>
+            <option name="modelType" value="builtin_id" />
+            <option name="modelValue" value="auto" />
+          </model>
+        </option>
+        <option name="targetType" value="BACKGROUND" />
+        <option name="worktreeMode" value="WORKSPACE" />
+      </template>
+    </option>
+  </component>
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "main",
+    "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "pnpm",
+    "prettierjs.PrettierConfiguration.Package": "/Users/buynaadamdinsuren/Documents/GitHub/curio/node_modules/prettier",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "settings.typescriptcompiler",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "/Users/buynaadamdinsuren/Library/Caches/JetBrains/WebStorm2026.2/ts-go-native-preview/v7.0.0-dev.jetbrains.20260702.4/node_modules/@typescript/native-preview-darwin-arm64/lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-WS-262.8665.259" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fc4e20ed-018a-4657-95d7-a27491d6eac7" name="Changes" comment="" />
+      <created>1784385734985</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784385734985</updated>
+      <workItem from="1784385736903" duration="902000" />
+      <workItem from="1784386762098" duration="531000" />
+      <workItem from="1784387320161" duration="390000" />
+      <workItem from="1784387781196" duration="2716000" />
+      <workItem from="1784450633637" duration="6450000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

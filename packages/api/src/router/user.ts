@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { eq, sql } from "@acme/db";
 import { users } from "@acme/db/schema";
-import { userUpdateSchema } from "@acme/db/validators";
+import { userUpdateSchema } from "@acme/validators";
 
 import { normalizeCreatorName } from "../lib/creator";
 import {

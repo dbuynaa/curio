@@ -2,7 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
-import { db } from "@acme/db/client";
+import { getProfileByAuthUserId } from "@acme/api";
 
 import { getSession } from "~/auth/server";
 
@@ -24,9 +24,7 @@ export async function requireSession(callbackUrl = "/") {
 
 export async function requireProfile(callbackUrl = "/") {
   const session = await requireSession(callbackUrl);
-  const profile = await db.query.users.findFirst({
-    where: { authUserId: session.user.id },
-  });
+  const profile = await getProfileByAuthUserId(session.user.id);
   if (!profile) {
     redirect(onboardingUrl(callbackUrl));
   }
@@ -39,9 +37,7 @@ export async function getOptionalProfile() {
     return { session: null, profile: null };
   }
 
-  const profile = await db.query.users.findFirst({
-    where: { authUserId: session.user.id },
-  });
+  const profile = await getProfileByAuthUserId(session.user.id);
 
   return { session, profile: profile ?? null };
 }

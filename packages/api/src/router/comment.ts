@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { eq, sql } from "@acme/db";
 import { collections, comments, items } from "@acme/db/schema";
-import { commentInsertSchema } from "@acme/db/validators";
+import { commentInsertSchema } from "@acme/validators";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 

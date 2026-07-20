@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { eq } from "@acme/db";
 import { items } from "@acme/db/schema";
-import { itemInsertSchema, itemUpdateSchema } from "@acme/db/validators";
+import { itemInsertSchema, itemUpdateSchema } from "@acme/validators";
 
 import type { DB } from "../lib/db-types";
 import { resolveCreator } from "../lib/creator";

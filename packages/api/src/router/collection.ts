@@ -6,7 +6,7 @@ import { collections, items } from "@acme/db/schema";
 import {
   collectionInsertSchema,
   collectionUpdateSchema,
-} from "@acme/db/validators";
+} from "@acme/validators";
 
 import type { DB } from "../lib/db-types";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";

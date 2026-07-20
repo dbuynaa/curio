@@ -51,6 +51,7 @@
     "POSTGRES_URL",
     "AUTH_REDIRECT_PROXY_URL",
     "AUTH_SECRET",
+    "BLOB_READ_WRITE_TOKEN",
     "PORT"
   ],
   "globalPassThroughEnv": [
