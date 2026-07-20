@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { ThemeToggle } from "@acme/ui/theme";
+
 import { AuthNav } from "~/app/_components/auth-nav";
 
 function PillLink({
@@ -48,6 +50,7 @@ export function SiteNav() {
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <AuthNav />
         <Link
           href="/collection/new"

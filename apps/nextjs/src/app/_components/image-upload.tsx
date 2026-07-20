@@ -91,7 +91,7 @@ export function ImageUpload({
         </p>
       ) : null}
       {value ? (
-        <div className="border-border relative mt-2 aspect-video overflow-hidden border bg-stone-100">
+        <div className="border-border bg-secondary relative mt-2 aspect-video overflow-hidden border">
           <img
             src={value}
             alt="Uploaded preview"

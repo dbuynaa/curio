@@ -50,17 +50,17 @@ export default async function CreatorPage({ params }: PageProps) {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground min-h-screen">
       <SiteNav />
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        <header className="mb-12 border-b border-foreground pb-6 max-w-3xl">
-          <div className="font-mono text-[10px] text-primary uppercase tracking-widest mb-3">
+      <main className="mx-auto max-w-6xl px-6 py-12">
+        <header className="border-foreground mb-12 max-w-3xl border-b pb-6">
+          <div className="text-primary mb-3 font-mono text-[10px] tracking-widest uppercase">
             Cited creator
           </div>
-          <h1 className="text-5xl font-semibold tracking-tighter mb-4">
+          <h1 className="mb-4 text-5xl font-semibold tracking-tighter">
             {creator.displayName}
           </h1>
-          <div className="flex gap-8 font-mono text-[10px] uppercase tracking-widest text-muted">
+          <div className="text-muted flex gap-8 font-mono text-[10px] tracking-widest uppercase">
             <span>{creator.citationCount} works cited</span>
             <span>
               Across {collectionsCited.size} collection
@@ -76,42 +76,42 @@ export default async function CreatorPage({ params }: PageProps) {
             return (
               <article
                 key={item.id}
-                className="bg-paper border border-border p-6 grid md:grid-cols-[160px_1fr] gap-6"
+                className="bg-paper border-border grid gap-6 border p-6 md:grid-cols-[160px_1fr]"
               >
                 <a
                   href={item.sourceUrl ?? "#"}
                   target="_blank"
                   rel="noreferrer"
-                  className="aspect-square overflow-hidden bg-stone-100 block"
+                  className="bg-secondary block aspect-square overflow-hidden"
                 >
                   {item.thumbnailUrl ? (
                     <img
                       src={item.thumbnailUrl}
                       alt={item.title}
                       loading="lazy"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   ) : null}
                 </a>
                 <div className="flex flex-col">
-                  <div className="flex justify-between items-start gap-4">
+                  <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-xl font-semibold">{item.title}</h3>
-                      <p className="font-mono text-[10px] text-muted mt-1 uppercase tracking-widest">
+                      <p className="text-muted mt-1 font-mono text-[10px] tracking-widest uppercase">
                         {item.contentType} / {item.frequencyCount} collection
                         {item.frequencyCount === 1 ? "" : "s"}
                       </p>
                     </div>
-                    <span className="font-mono text-[10px] text-primary shrink-0">
+                    <span className="text-primary shrink-0 font-mono text-[10px]">
                       #{String(idx + 1).padStart(2, "0")}
                     </span>
                   </div>
                   {item.description ? (
-                    <p className="font-serif italic text-foreground mt-4 leading-relaxed">
+                    <p className="text-foreground mt-4 font-serif leading-relaxed italic">
                       &ldquo;{item.description}&rdquo;
                     </p>
                   ) : null}
-                  <div className="mt-auto pt-4 border-t border-border flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-muted">
+                  <div className="border-border text-muted mt-auto flex items-center justify-between border-t pt-4 font-mono text-[10px] tracking-widest uppercase">
                     <span>Cited in</span>
                     <Link
                       href={`/collection/${collection.id}`}

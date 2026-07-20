@@ -41,7 +41,7 @@ function CollectionCard({
       href={`/collection/${c.id}`}
       className="group bg-paper border-border hover:border-foreground/30 flex flex-col overflow-hidden rounded-2xl border transition-colors"
     >
-      <div className="aspect-[4/3] overflow-hidden bg-stone-100">
+      <div className="bg-secondary aspect-[4/3] overflow-hidden">
         {c.coverImageUrl && (
           <img
             src={c.coverImageUrl}
@@ -84,14 +84,14 @@ function CollectionCard({
 export function CollectionCardSkeleton() {
   return (
     <div className="bg-paper border-border flex animate-pulse flex-col overflow-hidden rounded-2xl border">
-      <div className="aspect-[4/3] bg-stone-100" />
+      <div className="bg-secondary aspect-[4/3]" />
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="h-4 w-1/2 rounded-full bg-stone-200" />
-        <div className="h-3 w-1/3 rounded-full bg-stone-200" />
+        <div className="bg-muted h-4 w-1/2 rounded-full" />
+        <div className="bg-muted h-3 w-1/3 rounded-full" />
         <div className="mt-auto flex items-center gap-3 pt-3">
-          <div className="h-3 w-1/4 rounded-full bg-stone-200" />
-          <div className="h-3 w-1/4 rounded-full bg-stone-200" />
-          <div className="ml-auto h-3 w-1/4 rounded-full bg-stone-200" />
+          <div className="bg-muted h-3 w-1/4 rounded-full" />
+          <div className="bg-muted h-3 w-1/4 rounded-full" />
+          <div className="bg-muted ml-auto h-3 w-1/4 rounded-full" />
         </div>
       </div>
     </div>

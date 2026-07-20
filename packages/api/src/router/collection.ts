@@ -236,12 +236,14 @@ export const collectionRouter = createTRPCRouter({
       });
       if (!collection) throw new TRPCError({ code: "NOT_FOUND" });
 
+      const viewerProfile = ctx.session?.user
+        ? await ctx.db.query.users.findFirst({
+            where: { authUserId: ctx.session.user.id },
+            columns: { id: true },
+          })
+        : null;
+
       if (collection.visibility === "private") {
-        const viewerProfile = ctx.session?.user
-          ? await ctx.db.query.users.findFirst({
-              where: { authUserId: ctx.session.user.id },
-            })
-          : null;
         if (!viewerProfile || viewerProfile.id !== collection.userId) {
           // Same NOT_FOUND as a missing row — don't leak existence of private collections
           throw new TRPCError({ code: "NOT_FOUND" });
@@ -254,7 +256,10 @@ export const collectionRouter = createTRPCRouter({
         .set({ viewCount: sql`${collections.viewCount} + 1` })
         .where(eq(collections.id, input.id));
 
-      return collection;
+      return {
+        ...collection,
+        isOwner: viewerProfile?.id === collection.userId,
+      };
     }),
 
   // FR-3.2 — reordering; items_collection_position_idx is a unique index on

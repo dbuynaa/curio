@@ -27,23 +27,23 @@ export default async function SavedPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground min-h-screen">
       <SiteNav />
-      <main className="max-w-5xl mx-auto px-6 py-12 animate-reveal space-y-20">
-        <header className="border-b border-foreground pb-6 flex items-baseline justify-between">
+      <main className="animate-reveal mx-auto max-w-5xl space-y-20 px-6 py-12">
+        <header className="border-foreground flex items-baseline justify-between border-b pb-6">
           <div>
-            <div className="font-mono text-[10px] text-primary uppercase tracking-widest mb-3">
+            <div className="text-primary mb-3 font-mono text-[10px] tracking-widest uppercase">
               Private / Workbench
             </div>
             <h1 className="text-4xl font-semibold tracking-tighter">Saved</h1>
           </div>
-          <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
+          <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
             {savedCollectionRows.length} bookmarked
           </span>
         </header>
 
         <section>
-          <h2 className="font-mono text-[10px] text-primary uppercase tracking-widest mb-6 border-b border-border pb-3">
+          <h2 className="text-primary border-border mb-6 border-b pb-3 font-mono text-[10px] tracking-widest uppercase">
             Collections ({savedCollectionRows.length})
           </h2>
           <div className="space-y-1">
@@ -51,9 +51,9 @@ export default async function SavedPage() {
               <Link
                 key={collection.id}
                 href={`/collection/${collection.id}`}
-                className="grid grid-cols-[80px_1fr_auto] gap-5 items-center bg-paper border border-border p-4 hover:border-foreground"
+                className="bg-paper border-border hover:border-foreground grid grid-cols-[80px_1fr_auto] items-center gap-5 border p-4"
               >
-                <div className="size-20 overflow-hidden border border-border bg-stone-100">
+                <div className="bg-secondary border-border size-20 overflow-hidden border">
                   {collection.coverImageUrl ? (
                     <img
                       src={collection.coverImageUrl}
@@ -67,15 +67,15 @@ export default async function SavedPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold">{collection.title}</h3>
-                  <p className="text-xs text-muted line-clamp-1 mt-1">
+                  <p className="text-muted mt-1 line-clamp-1 text-xs">
                     {collection.description}
                   </p>
-                  <p className="font-mono text-[10px] text-muted uppercase tracking-widest mt-2">
+                  <p className="text-muted mt-2 font-mono text-[10px] tracking-widest uppercase">
                     @{collection.owner?.username ?? "curator"} ·{" "}
                     {collection.items.length} items
                   </p>
                 </div>
-                <span className="font-mono text-[10px] text-primary uppercase tracking-widest">
+                <span className="text-primary font-mono text-[10px] tracking-widest uppercase">
                   Saved
                 </span>
               </Link>
