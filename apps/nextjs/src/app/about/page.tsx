@@ -39,52 +39,48 @@ const principles = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <SiteNav />
-      <main className="max-w-3xl mx-auto px-6 py-20 animate-reveal">
-        <div className="font-mono text-[10px] text-primary uppercase tracking-widest mb-6">
-          Manifesto / v1.0 / 2026
-        </div>
-        <h1 className="text-5xl font-semibold tracking-tighter mb-10 text-balance">
-          A curation layer for the internet.
-        </h1>
-        <p className="font-serif text-2xl italic leading-relaxed text-foreground mb-16">
-          &ldquo;The library is not a collection of books. It is a collection of
-          decisions about which books to keep next to one another.&rdquo;
-        </p>
+    <main className="animate-reveal mx-auto max-w-3xl px-6 py-20">
+      <div className="text-primary mb-6 font-mono text-[10px] tracking-widest uppercase">
+        Manifesto / v1.0 / 2026
+      </div>
+      <h1 className="mb-10 text-5xl font-semibold tracking-tighter text-balance">
+        A curation layer for the internet.
+      </h1>
+      <p className="text-foreground mb-16 font-serif text-2xl leading-relaxed italic">
+        &ldquo;The library is not a collection of books. It is a collection of
+        decisions about which books to keep next to one another.&rdquo;
+      </p>
 
-        <div className="space-y-12 border-t border-border pt-12">
-          {principles.map((p) => (
-            <article
-              key={p.n}
-              className="grid grid-cols-[3rem_1fr] gap-8 items-baseline"
-            >
-              <span className="font-mono text-[10px] text-primary uppercase tracking-widest">
-                {p.n}
-              </span>
-              <div>
-                <h3 className="text-2xl font-semibold tracking-tight mb-3">
-                  {p.title}
-                </h3>
-                <p className="text-muted leading-relaxed">{p.body}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-20 pt-10 border-t border-foreground flex items-baseline justify-between">
-          <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
-            Start a collection
-          </span>
-          <Link
-            href="/new"
-            className="font-mono text-[11px] text-primary uppercase tracking-widest hover:underline"
+      <div className="border-border space-y-12 border-t pt-12">
+        {principles.map((p) => (
+          <article
+            key={p.n}
+            className="grid grid-cols-[3rem_1fr] items-baseline gap-8"
           >
-            Open the composer →
-          </Link>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
+            <span className="text-primary font-mono text-[10px] tracking-widest uppercase">
+              {p.n}
+            </span>
+            <div>
+              <h3 className="mb-3 text-2xl font-semibold tracking-tight">
+                {p.title}
+              </h3>
+              <p className="text-muted leading-relaxed">{p.body}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="border-foreground mt-20 flex items-baseline justify-between border-t pt-10">
+        <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
+          Start a collection
+        </span>
+        <Link
+          href="/new"
+          className="text-primary font-mono text-[11px] tracking-widest uppercase hover:underline"
+        >
+          Open the composer →
+        </Link>
+      </div>
+    </main>
   );
 }
