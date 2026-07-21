@@ -51,7 +51,6 @@ export default async function CreatorPage({ params }: PageProps) {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <SiteNav />
       <main className="mx-auto max-w-6xl px-6 py-12">
         <header className="border-foreground mb-12 max-w-3xl border-b pb-6">
           <div className="text-primary mb-3 font-mono text-[10px] tracking-widest uppercase">
@@ -126,7 +125,6 @@ export default async function CreatorPage({ params }: PageProps) {
           })}
         </div>
       </main>
-      <SiteFooter />
     </div>
   );
 }

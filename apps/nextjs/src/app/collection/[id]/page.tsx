@@ -54,13 +54,11 @@ export default async function CollectionPage({ params }: PageProps) {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <SiteNav />
       <main className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
         <HydrateClient>
           <CollectionView id={id} />
         </HydrateClient>
       </main>
-      <SiteFooter />
     </div>
   );
 }

@@ -123,7 +123,12 @@ export const collectionRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const [collection] = await ctx.db
         .insert(collections)
-        .values({ ...input, userId: ctx.user.id, isPublished: false })
+        .values({
+          ...input,
+          userId: ctx.user.id,
+          visibility: "private",
+          isPublished: false,
+        })
         .returning();
       return collection;
     }),
@@ -133,12 +138,19 @@ export const collectionRouter = createTRPCRouter({
   update: protectedProcedure
     .input(z.object({ id: z.uuid() }).merge(collectionUpdateSchema))
     .mutation(async ({ ctx, input }) => {
-      const { id, ...patch } = input;
-      await assertOwnership(ctx.db, id, ctx.user.id);
+      const { id, isPublished: _isPublished, ...patch } = input;
+      const existing = await assertOwnership(ctx.db, id, ctx.user.id);
+
+      // Draft visibility is never externally observable. A published
+      // collection becomes a draft again when its owner selects Private.
+      const isBeingUnpublished = patch.visibility === "private";
+      const nextState = existing.isPublished
+        ? { isPublished: !isBeingUnpublished }
+        : { visibility: "private" as const, isPublished: false };
 
       const [updated] = await ctx.db
         .update(collections)
-        .set({ ...patch, updatedAt: new Date() })
+        .set({ ...patch, ...nextState, updatedAt: new Date() })
         .where(eq(collections.id, id))
         .returning();
       return updated;
@@ -160,17 +172,12 @@ export const collectionRouter = createTRPCRouter({
         });
       }
 
-      // RQBv2 object filter: top-level keys AND together; `OR` is an array key.
-      // `{ isNull: true }` is the explicit RQBv2 null-check operator.
+      // Source attribution is the only publish gate; a curator's note is
+      // encouraged in the editor but optional in v3.3 of the product spec.
       const incompleteItems = await ctx.db.query.items.findMany({
         where: {
           collectionId: input.id,
-          OR: [
-            { sourceUrl: { isNull: true } },
-            { sourceUrl: "" },
-            { description: { isNull: true } },
-            { description: "" },
-          ],
+          OR: [{ sourceUrl: { isNull: true } }, { sourceUrl: "" }],
         },
         columns: { id: true, title: true },
       });
@@ -178,7 +185,7 @@ export const collectionRouter = createTRPCRouter({
       if (incompleteItems.length > 0) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: `These items are missing a source URL or description: ${incompleteItems
+          message: `These items are missing a source URL: ${incompleteItems
             .map((i) => i.title)
             .join(", ")}`,
         });
@@ -256,9 +263,53 @@ export const collectionRouter = createTRPCRouter({
         .set({ viewCount: sql`${collections.viewCount} + 1` })
         .where(eq(collections.id, input.id));
 
+      // Check if the current user has liked the collection
+      let collectionLikedByViewer = false;
+      if (viewerProfile) {
+        const like = await ctx.db.query.collectionLikes.findFirst({
+          where: {
+            userId: viewerProfile.id,
+            collectionId: input.id,
+          },
+        });
+        collectionLikedByViewer = !!like;
+      }
+
+      // Check if the current user has saved the collection
+      let collectionSavedByViewer = false;
+      if (viewerProfile) {
+        const save = await ctx.db.query.saves.findFirst({
+          where: {
+            userId: viewerProfile.id,
+            collectionId: input.id,
+          },
+        });
+        collectionSavedByViewer = !!save;
+      }
+
+      // Check if the current user has liked each item
+      const itemsWithLikeStatus = await Promise.all(
+        collection.items.map(async (item) => {
+          let likedByViewer = false;
+          if (viewerProfile) {
+            const like = await ctx.db.query.itemLikes.findFirst({
+              where: {
+                userId: viewerProfile.id,
+                itemId: item.id,
+              },
+            });
+            likedByViewer = !!like;
+          }
+          return { ...item, likedByViewer };
+        }),
+      );
+
       return {
         ...collection,
+        items: itemsWithLikeStatus,
         isOwner: viewerProfile?.id === collection.userId,
+        likedByViewer: collectionLikedByViewer,
+        savedByViewer: collectionSavedByViewer,
       };
     }),
 

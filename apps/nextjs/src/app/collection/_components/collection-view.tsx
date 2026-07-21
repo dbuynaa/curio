@@ -11,7 +11,6 @@ import {
 
 import { toast } from "@acme/ui/toast";
 
-import { slugify } from "~/lib/utils";
 import { useTRPC } from "~/trpc/react";
 
 function formatCount(value: number) {
@@ -112,10 +111,12 @@ function ItemLikeButton({
   itemId,
   likeCount,
   collectionId,
+  likedByViewer,
 }: {
   itemId: string;
   likeCount: number;
   collectionId: string;
+  likedByViewer?: boolean;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -141,7 +142,11 @@ function ItemLikeButton({
       type="button"
       onClick={() => like.mutate({ itemId })}
       disabled={like.isPending}
-      className="text-muted hover:text-foreground border-border hover:border-foreground border px-3 py-2 font-mono text-[10px] uppercase transition-colors disabled:opacity-50"
+      className={`border px-3 py-2 font-mono text-[10px] uppercase transition-colors disabled:opacity-50 ${
+        likedByViewer
+          ? "border-foreground bg-foreground text-background hover:bg-foreground/85"
+          : "text-muted hover:text-foreground border-border hover:border-foreground"
+      }`}
     >
       Like {formatCount(likeCount)}
     </button>
@@ -320,7 +325,11 @@ export function CollectionView({ id }: { id: string }) {
               type="button"
               disabled={likeMutation.isPending}
               onClick={() => likeMutation.mutate({ collectionId: id })}
-              className="border-border hover:border-foreground border px-3 py-2 font-mono text-[10px] uppercase transition-colors disabled:opacity-50"
+              className={`border px-3 py-2 font-mono text-[10px] uppercase transition-colors disabled:opacity-50 ${
+                collection.likedByViewer
+                  ? "border-foreground bg-foreground text-background hover:bg-foreground/85"
+                  : "border-border hover:border-foreground"
+              }`}
             >
               Like {formatCount(collection.likeCount)}
             </button>
@@ -328,7 +337,11 @@ export function CollectionView({ id }: { id: string }) {
               type="button"
               disabled={saveMutation.isPending}
               onClick={() => saveMutation.mutate({ collectionId: id })}
-              className="border-border hover:border-foreground border px-3 py-2 font-mono text-[10px] uppercase transition-colors disabled:opacity-50"
+              className={`border px-3 py-2 font-mono text-[10px] uppercase transition-colors disabled:opacity-50 ${
+                collection.savedByViewer
+                  ? "border-foreground bg-foreground text-background hover:bg-foreground/85"
+                  : "border-border hover:border-foreground"
+              }`}
             >
               Save {formatCount(collection.saveCount)}
             </button>
@@ -343,7 +356,7 @@ export function CollectionView({ id }: { id: string }) {
               The selections
             </p>
             <h2 className="mt-2 text-2xl font-semibold">
-              Every pick, and why it belongs.
+              Links worth keeping, with notes when they matter.
             </h2>
           </div>
           <span className="text-muted font-mono text-[10px] uppercase">
@@ -417,20 +430,6 @@ export function CollectionView({ id }: { id: string }) {
                   ) : null}
                 </div>
 
-                {item.creatorName ? (
-                  <div className="border-primary mt-5 border-l-2 pl-3">
-                    <p className="text-muted font-mono text-[10px] uppercase">
-                      Attributed to
-                    </p>
-                    <Link
-                      href={`/creator/${slugify(item.creatorName)}`}
-                      className="hover:text-primary mt-1 inline-block font-medium transition-colors"
-                    >
-                      {item.creatorName}
-                    </Link>
-                  </div>
-                ) : null}
-
                 {item.description ? (
                   <blockquote className="border-foreground mt-7 max-w-xl border-l pl-5 font-serif text-xl leading-relaxed italic">
                     {item.description}
@@ -442,6 +441,7 @@ export function CollectionView({ id }: { id: string }) {
                     itemId={item.id}
                     likeCount={item.likeCount}
                     collectionId={id}
+                    likedByViewer={item.likedByViewer}
                   />
                   {item.commentCount > 0 ? (
                     <span className="text-muted border-border border px-3 py-2 font-mono text-[10px] uppercase">
@@ -459,6 +459,7 @@ export function CollectionView({ id }: { id: string }) {
                     </a>
                   ) : null}
                 </div>
+
               </div>
             </article>
           ))}

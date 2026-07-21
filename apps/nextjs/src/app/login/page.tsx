@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
 import { getOptionalProfile } from "~/lib/require-auth";
-
 import { LoginForm } from "./_components/login-form";
 
 export const metadata: Metadata = {
@@ -25,18 +24,12 @@ export default async function LoginPage({
   }
 
   if (session?.user && !profile) {
-    redirect(
-      `/onboarding?callbackUrl=${encodeURIComponent(callbackUrl)}`,
-    );
+    redirect(`/onboarding?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
-      <SiteNav />
-      <main className="animate-reveal mx-auto max-w-3xl px-6 py-20">
-        <LoginForm callbackUrl={callbackUrl} />
-      </main>
-      <SiteFooter />
-    </div>
+    <main className="animate-reveal mx-auto max-w-3xl px-6 py-20">
+      <LoginForm callbackUrl={callbackUrl} />
+    </main>
   );
 }

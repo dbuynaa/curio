@@ -7,6 +7,7 @@ import { itemInsertSchema, itemUpdateSchema } from "@acme/validators";
 
 import type { DB } from "../lib/db-types";
 import { resolveCreator } from "../lib/creator";
+import { fetchOgMetadata } from "../lib/fetch-og-metadata";
 import { normalizeSourceUrl } from "../lib/normalize-url";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -59,6 +60,12 @@ async function validateSourceUrl(rawUrl: string): Promise<string> {
 }
 
 export const itemRouter = createTRPCRouter({
+  // FR-4.1 — fast-add metadata fetch; failures return null so the client
+  // falls back to manual entry rather than blocking the add action.
+  fetchMetadata: protectedProcedure
+    .input(z.object({ url: z.url().max(2048) }))
+    .query(async ({ input }) => fetchOgMetadata(input.url)),
+
   // FR-4.1 / FR-4.3 / FR-4.4 — items can be saved incomplete as drafts
   // (empty sourceUrl/description); only publish (FR-3.3) enforces completeness.
   create: protectedProcedure

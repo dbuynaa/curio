@@ -146,9 +146,10 @@ export const itemFormSchema = z.object({
     .refine((v) => v === "" || z.url().safeParse(v).success, {
       message: "Must be a valid URL",
     }),
-  creatorName: z.string().max(120),
   description: z.string(),
   thumbnailUrl: z.string().url().max(2048).or(z.literal("")),
+  contentType: contentTypeSchema,
+  matureContent: z.boolean(),
 });
 
 const collectionFormSchema = z.object({
@@ -156,6 +157,8 @@ const collectionFormSchema = z.object({
   description: z.string().max(500),
   tags: formTagsArray(),
   coverImageUrl: z.string().url().max(2048).or(z.literal("")),
+  visibility: visibilitySchema,
+  matureContent: z.boolean(),
 });
 
 export const newCollectionFormSchema = collectionFormSchema.extend({
@@ -169,7 +172,6 @@ const publishItemFormSchema = itemFormSchema.extend({
     .refine((v) => z.url().safeParse(v).success, {
       message: "Must be a valid URL",
     }),
-  description: z.string().min(1, "A note is required to publish"),
 });
 
 export const publishCollectionFormSchema = collectionFormSchema.extend({
@@ -195,12 +197,16 @@ export function toCollectionInsert(v: {
   description: string;
   tags: string[];
   coverImageUrl: string;
+  visibility: z.infer<typeof visibilitySchema>;
+  matureContent: boolean;
 }) {
   return {
     title: v.title,
     description: v.description || undefined,
     tags: v.tags,
     coverImageUrl: v.coverImageUrl || undefined,
+    visibility: v.visibility,
+    matureContent: v.matureContent,
   };
 }
 
@@ -208,8 +214,9 @@ export function toItemInsert(v: ItemFormValues) {
   return {
     title: v.title,
     sourceUrl: v.sourceUrl || undefined,
-    creatorName: v.creatorName || undefined,
     description: v.description || undefined,
     thumbnailUrl: v.thumbnailUrl || undefined,
+    contentType: v.contentType,
+    matureContent: v.matureContent,
   };
 }

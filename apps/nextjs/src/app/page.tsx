@@ -26,7 +26,6 @@ export default function ExplorePage() {
   return (
     <HydrateClient>
       <div className="bg-background text-foreground min-h-screen">
-        <SiteNav />
         <main className="mx-auto max-w-6xl px-6 pt-4 pb-12">
           <section className="animate-reveal mt-6 [animation-delay:80ms]">
             <header className="mb-8 flex items-end justify-between">
@@ -97,7 +96,6 @@ export default function ExplorePage() {
           </div>
         </section> */}
         </main>
-        <SiteFooter />
       </div>
     </HydrateClient>
   );

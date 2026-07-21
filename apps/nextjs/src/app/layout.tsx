@@ -10,6 +10,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 import "~/app/styles.css";
 
+import { SiteFooter, SiteNav } from "./_components/site-nav";
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
@@ -60,7 +62,13 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <ThemeProvider>
-          <TRPCReactProvider>{props.children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <div className="mx-auto px-6">
+              <SiteNav />
+              {props.children}
+              <SiteFooter />
+            </div>
+          </TRPCReactProvider>
           <Toaster />
         </ThemeProvider>
       </body>
