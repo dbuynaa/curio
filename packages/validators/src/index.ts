@@ -62,7 +62,6 @@ export const collectionInsertSchema = z.object({
   coverImageUrl: urlOptional(),
   visibility: visibilitySchema.default("private"),
   tags: tagsArray(),
-  matureContent: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });
 
@@ -72,7 +71,6 @@ export const collectionUpdateSchema = z.object({
   coverImageUrl: urlOptional(),
   visibility: visibilitySchema.optional(),
   tags: tagsArray().optional(),
-  matureContent: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });
 
@@ -85,7 +83,6 @@ export const itemInsertSchema = z.object({
   creatorUrl: urlOptional(),
   thumbnailUrl: urlOptional(),
   tags: tagsArray(),
-  matureContent: z.boolean().optional(),
   position: z.number().int().nonnegative().default(0),
 });
 
@@ -98,7 +95,7 @@ export const itemUpdateSchema = z.object({
   creatorUrl: urlOptional(),
   thumbnailUrl: urlOptional(),
   tags: tagsArray().optional(),
-  matureContent: z.boolean().optional(),
+
   position: z.number().int().nonnegative().optional(),
 });
 
@@ -149,7 +146,6 @@ export const itemFormSchema = z.object({
   description: z.string(),
   thumbnailUrl: z.string().url().max(2048).or(z.literal("")),
   contentType: contentTypeSchema,
-  matureContent: z.boolean(),
 });
 
 const collectionFormSchema = z.object({
@@ -158,7 +154,6 @@ const collectionFormSchema = z.object({
   tags: formTagsArray(),
   coverImageUrl: z.string().url().max(2048).or(z.literal("")),
   visibility: visibilitySchema,
-  matureContent: z.boolean(),
 });
 
 export const newCollectionFormSchema = collectionFormSchema.extend({
@@ -198,7 +193,6 @@ export function toCollectionInsert(v: {
   tags: string[];
   coverImageUrl: string;
   visibility: z.infer<typeof visibilitySchema>;
-  matureContent: boolean;
 }) {
   return {
     title: v.title,
@@ -206,7 +200,6 @@ export function toCollectionInsert(v: {
     tags: v.tags,
     coverImageUrl: v.coverImageUrl || undefined,
     visibility: v.visibility,
-    matureContent: v.matureContent,
   };
 }
 
@@ -217,6 +210,5 @@ export function toItemInsert(v: ItemFormValues) {
     description: v.description || undefined,
     thumbnailUrl: v.thumbnailUrl || undefined,
     contentType: v.contentType,
-    matureContent: v.matureContent,
   };
 }

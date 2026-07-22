@@ -53,12 +53,10 @@ export default async function CollectionPage({ params }: PageProps) {
   prefetch(trpc.collection.byId.queryOptions({ id }));
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
-      <main className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
-        <HydrateClient>
-          <CollectionView id={id} />
-        </HydrateClient>
-      </main>
-    </div>
+    <main className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
+      <HydrateClient>
+        <CollectionView id={id} />
+      </HydrateClient>
+    </main>
   );
 }

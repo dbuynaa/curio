@@ -115,8 +115,6 @@ export const collections = pgTable(
     // Free-form, X-style tags — no canonical tag table, PRD 9.2 / 15.1
     tags: t.text().array().notNull().default([]),
 
-    matureContent: t.boolean().notNull().default(false),
-
     // Denormalized counters
     likeCount: t.integer().notNull().default(0),
     saveCount: t.integer().notNull().default(0),
@@ -164,8 +162,6 @@ export const items = pgTable(
     thumbnailUrl: t.text(),
 
     tags: t.text().array().notNull().default([]),
-
-    matureContent: t.boolean().notNull().default(false),
 
     position: t.integer().notNull().default(0),
 

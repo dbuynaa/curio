@@ -37,12 +37,6 @@ export default function ExplorePage() {
                   Fresh from curators
                 </h2>
               </div>
-              <Link
-                href="/search"
-                className="bg-paper border-border hover:border-foreground/40 hidden rounded-full border px-4 py-2 text-sm transition-colors md:inline"
-              >
-                Browse all →
-              </Link>
             </header>
             <Suspense
               fallback={

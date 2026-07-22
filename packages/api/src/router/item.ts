@@ -168,7 +168,7 @@ export const itemRouter = createTRPCRouter({
 
   // FR-4.6
   setMature: protectedProcedure
-    .input(z.object({ id: z.uuid(), matureContent: z.boolean() }))
+    .input(z.object({ id: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const item = await ctx.db.query.items.findFirst({
         where: { id: input.id },
@@ -178,7 +178,7 @@ export const itemRouter = createTRPCRouter({
 
       const [updated] = await ctx.db
         .update(items)
-        .set({ matureContent: input.matureContent, updatedAt: new Date() })
+        .set({ updatedAt: new Date() })
         .where(eq(items.id, input.id))
         .returning();
       return updated;

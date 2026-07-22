@@ -21,7 +21,6 @@ import {
 } from "@acme/validators";
 
 import { ImageUpload } from "~/app/_components/image-upload";
-import { SiteFooter, SiteNav } from "~/app/_components/site-nav";
 import { TagInput } from "~/app/_components/tag-input";
 import { useTRPC } from "~/trpc/react";
 
@@ -38,7 +37,6 @@ function emptyItem(): ItemFormValues {
     description: "",
     thumbnailUrl: "",
     contentType: "link",
-    matureContent: false,
   };
 }
 
@@ -131,7 +129,6 @@ export function CollectionEditor({
       description: collection?.description ?? "",
       tags: collection?.tags ?? [],
       coverImageUrl: collection?.coverImageUrl ?? "",
-      matureContent: collection?.matureContent ?? false,
       visibility: collection?.isPublished ? collection.visibility : "private",
       items: collection?.items.map((item) => ({
         id: item.id,
@@ -140,7 +137,6 @@ export function CollectionEditor({
         description: item.description ?? "",
         thumbnailUrl: item.thumbnailUrl ?? "",
         contentType: item.contentType,
-        matureContent: item.matureContent,
       })) ?? [emptyItem()],
     } as CollectionFormValues,
 
@@ -233,7 +229,6 @@ export function CollectionEditor({
         description: "",
         thumbnailUrl: metadata?.thumbnailUrl ?? "",
         contentType: metadata?.contentType ?? "link",
-        matureContent: false,
       };
 
       form.setFieldValue("items", (items) => [...items, nextItem]);
@@ -277,341 +272,244 @@ export function CollectionEditor({
     );
   }
 
-  const hasItemMatureWithoutCollection = form.state.values.items.some(
-    (item) => item.matureContent,
-  );
-
   return (
-    <div className="bg-background text-foreground min-h-screen">
-      <SiteNav />
-      <main className="animate-reveal mx-auto max-w-3xl px-6 py-12">
-        <header className="border-foreground mb-10 border-b pb-6">
-          <div className="text-primary mb-3 font-mono text-[10px] tracking-widest uppercase">
-            Composer / {collection ? "Edit" : "Draft"}
-          </div>
-          <h1 className="text-4xl font-semibold tracking-tighter">
-            {collection ? "Edit collection" : "Begin a collection"}
-          </h1>
-          <p className="text-muted mt-3 text-sm">
-            Give your collection a title and thesis, then add links with a
-            source URL for each pick.
-          </p>
-        </header>
+    <main className="animate-reveal mx-auto max-w-3xl px-6 py-12">
+      <header className="border-foreground mb-10 border-b pb-6">
+        <div className="text-primary mb-3 font-mono text-[10px] tracking-widest uppercase">
+          Composer / {collection ? "Edit" : "Draft"}
+        </div>
+        <h1 className="text-4xl font-semibold tracking-tighter">
+          {collection ? "Edit collection" : "Begin a collection"}
+        </h1>
+        <p className="text-muted mt-3 text-sm">
+          Give your collection a title and thesis, then add links with a source
+          URL for each pick.
+        </p>
+      </header>
 
-        <form
-          className="space-y-12"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void form.handleSubmit();
-          }}
-        >
-          <section className="space-y-4">
-            <span className="text-primary font-mono text-[10px] tracking-widest uppercase">
-              01 / Identity
-            </span>
+      <form
+        className="space-y-12"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        <section className="space-y-4">
+          <span className="text-primary font-mono text-[10px] tracking-widest uppercase">
+            01 / Identity
+          </span>
 
-            <form.Field
-              name="title"
-              validators={{ onChange: newCollectionFormSchema.shape.title }}
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldContent>
-                      <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-                    </FieldContent>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder="e.g. Late-night Brutalist Reading"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
-            />
-
-            <form.Field
-              name="description"
-              children={(field) => (
-                <Field>
+          <form.Field
+            name="title"
+            validators={{ onChange: newCollectionFormSchema.shape.title }}
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
                   <FieldContent>
-                    <FieldLabel htmlFor={field.name}>
-                      Thesis / description (optional)
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Title</FieldLabel>
                   </FieldContent>
-                  <Textarea
+                  <Input
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    rows={3}
-                    placeholder="What is this collection arguing for?"
+                    aria-invalid={isInvalid}
+                    placeholder="e.g. Late-night Brutalist Reading"
                   />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
-              )}
-            />
+              );
+            }}
+          />
 
-            <form.Field
-              name="tags"
-              children={(field) => (
-                <Field>
-                  <FieldContent>
-                    <FieldLabel htmlFor={field.name}>
-                      Tags (optional)
-                    </FieldLabel>
-                  </FieldContent>
-                  <TagInput
-                    id={field.name}
-                    tags={field.state.value}
-                    onChange={field.handleChange}
-                    placeholder="#brutalism, #concrete, #archive"
-                  />
-                </Field>
-              )}
-            />
-
-            <form.Field
-              name="coverImageUrl"
-              children={(field) => (
-                <ImageUpload
-                  label="Collection cover (optional)"
+          <form.Field
+            name="description"
+            children={(field) => (
+              <Field>
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>
+                    Thesis / description (optional)
+                  </FieldLabel>
+                </FieldContent>
+                <Textarea
+                  id={field.name}
+                  name={field.name}
                   value={field.state.value}
-                  onChange={field.handleChange}
-                  purpose="collection-cover"
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  rows={3}
+                  placeholder="What is this collection arguing for?"
                 />
-              )}
-            />
+              </Field>
+            )}
+          />
 
-            <form.Field
-              name="visibility"
-              children={(field) => (
+          <form.Field
+            name="tags"
+            children={(field) => (
+              <Field>
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>Tags (optional)</FieldLabel>
+                </FieldContent>
+                <TagInput
+                  id={field.name}
+                  tags={field.state.value}
+                  onChange={field.handleChange}
+                  placeholder="#brutalism, #concrete, #archive"
+                />
+              </Field>
+            )}
+          />
+
+          <form.Field
+            name="coverImageUrl"
+            children={(field) => (
+              <ImageUpload
+                label="Collection cover (optional)"
+                value={field.state.value}
+                onChange={field.handleChange}
+                purpose="collection-cover"
+              />
+            )}
+          />
+
+          <form.Field
+            name="visibility"
+            children={(field) => (
+              <Field>
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>
+                    Visibility when published
+                  </FieldLabel>
+                </FieldContent>
+                <select
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(event) =>
+                    field.handleChange(
+                      event.target.value as CollectionFormValues["visibility"],
+                    )
+                  }
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
+                >
+                  <option value="private">Private (draft)</option>
+                  <option value="public">Public</option>
+                  <option value="unlisted">Unlisted</option>
+                </select>
+              </Field>
+            )}
+          />
+        </section>
+
+        <section className="border-border space-y-6 border-t pt-10">
+          <form.Field name="items" mode="array">
+            {(itemsField) => (
+              <>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-primary font-mono text-[10px] tracking-widest uppercase">
+                    02 / Items ({itemsField.state.value.length})
+                  </span>
+                  <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
+                    Drag to reorder
+                  </span>
+                </div>
+
                 <Field>
                   <FieldContent>
-                    <FieldLabel htmlFor={field.name}>
-                      Visibility when published
+                    <FieldLabel htmlFor="fast-add-url">
+                      Paste a URL to add an item
                     </FieldLabel>
                   </FieldContent>
-                  <select
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(event) =>
-                      field.handleChange(
-                        event.target
-                          .value as CollectionFormValues["visibility"],
-                      )
-                    }
-                    className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
-                  >
-                    <option value="private">Private (draft)</option>
-                    <option value="public">Public</option>
-                    <option value="unlisted">Unlisted</option>
-                  </select>
-                </Field>
-              )}
-            />
-
-            <form.Field
-              name="matureContent"
-              children={(field) => (
-                <Field>
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={field.state.value}
-                      onChange={(event) =>
-                        field.handleChange(event.target.checked)
+                  <Input
+                    id="fast-add-url"
+                    value={fastAddUrl}
+                    onChange={(event) => setFastAddUrl(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void handleFastAdd(fastAddUrl);
                       }
-                      className="accent-foreground size-4"
-                    />
-                    <span className="text-sm">
-                      Flag collection as mature content
-                    </span>
-                  </label>
+                    }}
+                    onPaste={(event) => {
+                      const pasted = event.clipboardData.getData("text");
+                      if (pasted.startsWith("http")) {
+                        event.preventDefault();
+                        void handleFastAdd(pasted);
+                      }
+                    }}
+                    placeholder="https://"
+                    className="font-mono text-sm"
+                    disabled={isFetchingMetadata}
+                  />
+                  {isFetchingMetadata ? (
+                    <p className="text-muted mt-1 font-mono text-[10px] uppercase">
+                      Fetching metadata...
+                    </p>
+                  ) : null}
                 </Field>
-              )}
-            />
-          </section>
 
-          <section className="border-border space-y-6 border-t pt-10">
-            <form.Field name="items" mode="array">
-              {(itemsField) => (
-                <>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-primary font-mono text-[10px] tracking-widest uppercase">
-                      02 / Items ({itemsField.state.value.length})
-                    </span>
-                    <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
-                      Drag to reorder
-                    </span>
-                  </div>
-
-                  <Field>
-                    <FieldContent>
-                      <FieldLabel htmlFor="fast-add-url">
-                        Paste a URL to add an item
-                      </FieldLabel>
-                    </FieldContent>
-                    <Input
-                      id="fast-add-url"
-                      value={fastAddUrl}
-                      onChange={(event) => setFastAddUrl(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          void handleFastAdd(fastAddUrl);
-                        }
+                <div className="space-y-4">
+                  {itemsField.state.value.map((_, index) => (
+                    <article
+                      key={index}
+                      draggable
+                      onDragStart={() => setDragIndex(index)}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={() => {
+                        if (dragIndex === null || dragIndex === index) return;
+                        itemsField.moveValue(dragIndex, index);
+                        setDragIndex(null);
                       }}
-                      onPaste={(event) => {
-                        const pasted = event.clipboardData.getData("text");
-                        if (pasted.startsWith("http")) {
-                          event.preventDefault();
-                          void handleFastAdd(pasted);
-                        }
-                      }}
-                      placeholder="https://"
-                      className="font-mono text-sm"
-                      disabled={isFetchingMetadata}
-                    />
-                    {isFetchingMetadata ? (
-                      <p className="text-muted mt-1 font-mono text-[10px] uppercase">
-                        Fetching metadata...
-                      </p>
-                    ) : null}
-                  </Field>
-
-                  <div className="space-y-4">
-                    {itemsField.state.value.map((_, index) => (
-                      <article
-                        key={index}
-                        draggable
-                        onDragStart={() => setDragIndex(index)}
-                        onDragOver={(event) => event.preventDefault()}
-                        onDrop={() => {
-                          if (dragIndex === null || dragIndex === index) return;
-                          itemsField.moveValue(dragIndex, index);
-                          setDragIndex(null);
-                        }}
-                        onDragEnd={() => setDragIndex(null)}
-                        className={`border-border bg-paper relative space-y-4 border p-5 transition-opacity ${
-                          dragIndex === index ? "opacity-50" : ""
-                        }`}
-                      >
-                        <header className="border-border flex items-center justify-between border-b pb-3">
-                          <div className="flex items-center gap-3">
-                            <button
-                              type="button"
-                              className="text-muted hover:text-foreground cursor-grab font-mono text-[10px] tracking-widest uppercase active:cursor-grabbing"
-                              aria-label={`Drag item ${index + 1} to reorder`}
-                            >
-                              ↕ Drag
-                            </button>
-                            <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
-                              Item {String(index + 1).padStart(2, "0")}
-                            </span>
-                          </div>
+                      onDragEnd={() => setDragIndex(null)}
+                      className={`border-border bg-paper relative space-y-4 border p-5 transition-opacity ${
+                        dragIndex === index ? "opacity-50" : ""
+                      }`}
+                    >
+                      <header className="border-border flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-3">
                           <button
                             type="button"
-                            onClick={() => itemsField.removeValue(index)}
-                            disabled={itemsField.state.value.length === 1}
-                            className="text-muted hover:text-primary font-mono text-[10px] tracking-widest uppercase disabled:cursor-not-allowed disabled:opacity-30"
-                            aria-label={`Remove item ${index + 1}`}
+                            className="text-muted hover:text-foreground cursor-grab font-mono text-[10px] tracking-widest uppercase active:cursor-grabbing"
+                            aria-label={`Drag item ${index + 1} to reorder`}
                           >
-                            × Remove
+                            ↕ Drag
                           </button>
-                        </header>
+                          <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
+                            Item {String(index + 1).padStart(2, "0")}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => itemsField.removeValue(index)}
+                          disabled={itemsField.state.value.length === 1}
+                          className="text-muted hover:text-primary font-mono text-[10px] tracking-widest uppercase disabled:cursor-not-allowed disabled:opacity-30"
+                          aria-label={`Remove item ${index + 1}`}
+                        >
+                          × Remove
+                        </button>
+                      </header>
 
-                        <form.Field
-                          name={`items[${index}].sourceUrl`}
-                          validators={{
-                            onChange: itemFormSchema.shape.sourceUrl,
-                          }}
-                          children={(field) => {
-                            const isInvalid =
-                              field.state.meta.isTouched &&
-                              !field.state.meta.isValid;
-                            return (
-                              <Field data-invalid={isInvalid}>
-                                <FieldContent>
-                                  <FieldLabel htmlFor={field.name}>
-                                    Source URL (required to publish)
-                                  </FieldLabel>
-                                </FieldContent>
-                                <Input
-                                  id={field.name}
-                                  name={field.name}
-                                  value={field.state.value}
-                                  onBlur={field.handleBlur}
-                                  onChange={(e) =>
-                                    field.handleChange(e.target.value)
-                                  }
-                                  placeholder="https://"
-                                  className="font-mono text-sm"
-                                  aria-invalid={isInvalid}
-                                />
-                                {isInvalid && (
-                                  <FieldError
-                                    errors={field.state.meta.errors}
-                                  />
-                                )}
-                              </Field>
-                            );
-                          }}
-                        />
-
-                        <form.Field
-                          name={`items[${index}].title`}
-                          validators={{ onChange: itemFormSchema.shape.title }}
-                          children={(field) => {
-                            const isInvalid =
-                              field.state.meta.isTouched &&
-                              !field.state.meta.isValid;
-                            return (
-                              <Field data-invalid={isInvalid}>
-                                <FieldContent>
-                                  <FieldLabel htmlFor={field.name}>
-                                    Title
-                                  </FieldLabel>
-                                </FieldContent>
-                                <Input
-                                  id={field.name}
-                                  name={field.name}
-                                  value={field.state.value}
-                                  onBlur={field.handleBlur}
-                                  onChange={(e) =>
-                                    field.handleChange(e.target.value)
-                                  }
-                                  aria-invalid={isInvalid}
-                                />
-                                {isInvalid && (
-                                  <FieldError
-                                    errors={field.state.meta.errors}
-                                  />
-                                )}
-                              </Field>
-                            );
-                          }}
-                        />
-
-                        <form.Field
-                          name={`items[${index}].description`}
-                          children={(field) => (
-                            <Field>
+                      <form.Field
+                        name={`items[${index}].sourceUrl`}
+                        validators={{
+                          onChange: itemFormSchema.shape.sourceUrl,
+                        }}
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
                               <FieldContent>
                                 <FieldLabel htmlFor={field.name}>
-                                  Why did you pick this?
+                                  Source URL (required to publish)
                                 </FieldLabel>
                               </FieldContent>
-                              <Textarea
+                              <Input
                                 id={field.name}
                                 name={field.name}
                                 value={field.state.value}
@@ -619,113 +517,144 @@ export function CollectionEditor({
                                 onChange={(e) =>
                                   field.handleChange(e.target.value)
                                 }
-                                rows={3}
-                                placeholder="Why does this belong here? (optional)"
+                                placeholder="https://"
+                                className="font-mono text-sm"
+                                aria-invalid={isInvalid}
                               />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
                             </Field>
-                          )}
-                        />
+                          );
+                        }}
+                      />
 
-                        <form.Field
-                          name={`items[${index}].thumbnailUrl`}
-                          children={(field) => (
-                            <ImageUpload
-                              label="Item image (optional)"
+                      <form.Field
+                        name={`items[${index}].title`}
+                        validators={{ onChange: itemFormSchema.shape.title }}
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldContent>
+                                <FieldLabel htmlFor={field.name}>
+                                  Title
+                                </FieldLabel>
+                              </FieldContent>
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                aria-invalid={isInvalid}
+                              />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      />
+
+                      <form.Field
+                        name={`items[${index}].description`}
+                        children={(field) => (
+                          <Field>
+                            <FieldContent>
+                              <FieldLabel htmlFor={field.name}>
+                                Why did you pick this?
+                              </FieldLabel>
+                            </FieldContent>
+                            <Textarea
+                              id={field.name}
+                              name={field.name}
                               value={field.state.value}
-                              onChange={field.handleChange}
-                              purpose="item-thumbnail"
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                              rows={3}
+                              placeholder="Why does this belong here? (optional)"
                             />
-                          )}
-                        />
+                          </Field>
+                        )}
+                      />
 
-                        <form.Field
-                          name={`items[${index}].matureContent`}
-                          children={(field) => (
-                            <Field>
-                              <label className="flex cursor-pointer items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={field.state.value}
-                                  onChange={(event) =>
-                                    field.handleChange(event.target.checked)
-                                  }
-                                  className="accent-foreground size-4"
-                                />
-                                <span className="text-sm">
-                                  Flag as mature content
-                                </span>
-                              </label>
-                            </Field>
-                          )}
-                        />
-                      </article>
-                    ))}
-                  </div>
+                      <form.Field
+                        name={`items[${index}].thumbnailUrl`}
+                        children={(field) => (
+                          <ImageUpload
+                            label="Item image (optional)"
+                            value={field.state.value}
+                            onChange={field.handleChange}
+                            purpose="item-thumbnail"
+                          />
+                        )}
+                      />
+                    </article>
+                  ))}
+                </div>
 
-                  <button
-                    type="button"
-                    onClick={() => itemsField.pushValue(emptyItem())}
-                    className="border-border hover:border-foreground hover:text-foreground text-muted flex w-full items-center justify-center gap-2 border border-dashed bg-transparent py-4 font-mono text-[10px] tracking-widest uppercase transition-colors"
-                  >
-                    + Add another item
-                  </button>
-                </>
-              )}
-            </form.Field>
-
-            {hasItemMatureWithoutCollection &&
-            !form.state.values.matureContent ? (
-              <p className="text-muted border-border border-l-2 pl-3 text-sm">
-                One or more items are flagged as mature. Consider flagging the
-                collection too so viewers know what to expect.
-              </p>
-            ) : null}
-          </section>
-
-          <div className="border-foreground flex flex-wrap items-center justify-between gap-4 border-t pt-8">
-            <div className="flex flex-col gap-2">
-              <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
-                {collection?.isPublished ? "Published" : "Draft / private"}
-              </span>
-              {collection ? (
                 <button
                   type="button"
-                  onClick={handleDeleteCollection}
-                  disabled={isSubmitting}
-                  className="text-destructive text-left font-mono text-[10px] tracking-widest uppercase hover:underline disabled:opacity-50"
+                  onClick={() => itemsField.pushValue(emptyItem())}
+                  className="border-border hover:border-foreground hover:text-foreground text-muted flex w-full items-center justify-center gap-2 border border-dashed bg-transparent py-4 font-mono text-[10px] tracking-widest uppercase transition-colors"
                 >
-                  Delete collection
+                  + Add another item
                 </button>
-              ) : null}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {collection?.isPublished ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isSubmitting}
-                  onClick={handleUnpublish}
-                >
-                  Unpublish
-                </Button>
-              ) : null}
+              </>
+            )}
+          </form.Field>
+        </section>
+
+        <div className="border-foreground flex flex-wrap items-center justify-between gap-4 border-t pt-8">
+          <div className="flex flex-col gap-2">
+            <span className="text-muted font-mono text-[10px] tracking-widest uppercase">
+              {collection?.isPublished ? "Published" : "Draft / private"}
+            </span>
+            {collection ? (
+              <button
+                type="button"
+                onClick={handleDeleteCollection}
+                disabled={isSubmitting}
+                className="text-destructive text-left font-mono text-[10px] tracking-widest uppercase hover:underline disabled:opacity-50"
+              >
+                Delete collection
+              </button>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {collection?.isPublished ? (
               <Button
                 type="button"
                 variant="outline"
                 disabled={isSubmitting}
-                onClick={() => saveCollection(form.state.values, false)}
+                onClick={handleUnpublish}
               >
-                {collection ? "Save changes" : "Save draft"}
+                Unpublish
               </Button>
-              {!collection?.isPublished ? (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Publishing..." : "Publish collection"}
-                </Button>
-              ) : null}
-            </div>
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={() => saveCollection(form.state.values, false)}
+            >
+              {collection ? "Save changes" : "Save draft"}
+            </Button>
+            {!collection?.isPublished ? (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Publishing..." : "Publish collection"}
+              </Button>
+            ) : null}
           </div>
-        </form>
-      </main>
-    </div>
+        </div>
+      </form>
+    </main>
   );
 }

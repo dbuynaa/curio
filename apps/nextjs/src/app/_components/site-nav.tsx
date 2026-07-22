@@ -35,7 +35,7 @@ function PillLink({
 
 export function SiteNav() {
   return (
-    <nav className="bg-background flex items-center justify-between px-6 py-5">
+    <nav className="bg-background flex items-center justify-between px-26 py-5">
       <Link href="/" className="group flex items-center gap-2">
         <span className="bg-foreground text-background grid size-7 place-items-center rounded-md text-sm font-semibold">
           C
@@ -44,7 +44,6 @@ export function SiteNav() {
       </Link>
       <div className="hidden items-center gap-1 md:flex">
         <PillLink href="/" label="Explore" exact />
-        <PillLink href="/search" label="Search" />
         <PillLink href="/saved" label="Saved" />
         <PillLink href="/about" label="About" />
       </div>
